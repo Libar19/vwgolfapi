@@ -2486,9 +2486,9 @@ getSkodaEStatus(vin) {
                     }
                     else
                     {
-                        this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
-                        reject();
-                        return;
+                        //this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
+                        //reject();
+                        //return;
                     }
                     if (key.indexOf("Timestamp") === -1) {
                         body[key] = chargingStates[keyName];
