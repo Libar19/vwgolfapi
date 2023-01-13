@@ -220,7 +220,7 @@ class VwWeConnect {
       });
     }
 
-    setChargerSettings(pTargetSOC, pChargeCurrent) {
+    setChargingSettings(pTargetSOC, pChargeCurrent) {
       return new Promise(async (resolve, reject) => {
         this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "% and chargeCurrent to " + pChargeCurrent + " >>");
         if (!this.finishedReading()) {
