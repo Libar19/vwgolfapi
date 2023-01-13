@@ -2318,7 +2318,6 @@ getSkodaEStatus(vin) {
                     }
                     this.log.debug("getIdParkingPosition: " + JSON.stringify(body));
                     this.idParkingPosition = body;
-                    this.boolFinishIdData = true;
 
                     try {
                         const adapter = this;
@@ -2350,7 +2349,7 @@ getSkodaEStatus(vin) {
                     }
                 }
             );
-            this.log.debug("END getIdStatus");
+            this.log.debug("END getIdParkingPosition");
         });
     }
 
