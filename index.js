@@ -1,6 +1,6 @@
 "use strict";
 
-// latest checked version of ioBroker.vw-connect: latest // https://github.com/TA2k/ioBroker.vw-connect/commit/604cdc1aacee0d13f189829aed985f35281f2016 sd
+// latest checked version of ioBroker.vw-connect: latest // https://github.com/TA2k/ioBroker.vw-connect/commit/604cdc1aacee0d13f189829aed985f35281f2016
 
 const request = require("request");
 const crypto = require("crypto");
@@ -58,6 +58,7 @@ class VwWeConnect {
         logLevel: "ERROR",
         targetTempC: -1,
         targetSOC: -1,
+        chargeCurrent: "maximum",
         historyLimit: 100,
         chargerOnly: false
     }
@@ -219,9 +220,9 @@ class VwWeConnect {
       });
     }
 
-    setTargetSOC(pTargetSOC) {
+    setChargerSettings(pTargetSOC, pChargeCurrent) {
       return new Promise(async (resolve, reject) => {
-        this.log.debug("setTargetSOC to " + pTargetSOC + "% >>");
+        this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "% and chargeCurrent to " + pChargeCurrent + " >>");
         if (!this.finishedReading()) {
             this.log.info("Reading necessary data not finished yet. Please try again.");
             reject();
@@ -233,19 +234,21 @@ class VwWeConnect {
             return;
         }
         this.config.targetSOC = pTargetSOC;
+        this.config.chargeCurrent = pChargeCurrent;
 
         this.setIdRemote(this.currSession.vin, "charging", "settings")
           .then(() => {
               this.log.info("Target SOC set to " + this.config.targetSOC + "%.");
+              this.log.info("Charging current set to " + this.config.chargeCurrent + ".");
               resolve();
               return;
           })
           .catch(() => {
-                this.log.error("setting SOC failed");
+                this.log.error("setting SOC and charge current failed");
                 reject();
                 return;
           });
-        this.log.debug("setTargetSOC <<");
+        this.log.debug("setChargerSettings <<");
       });
     }
 
@@ -2403,10 +2406,14 @@ getSkodaEStatus(vin) {
                         if (key == "targetSOC_pct") {
                             chargingStates[keyName] = this.config.targetSOC;
                         }
+                    } else if (this.config.chargeCurrent == "maximum" || this.config.chargeCurrent == "reduced") {
+                        if (key == "maxChargeCurrentAC") {
+                            chargingStates[keyName] = this.config.chargeCurrent;
+                        }
                     }
                     else
                     {
-                        this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%.");
+                        this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
                         reject();
                         return;
                     }
