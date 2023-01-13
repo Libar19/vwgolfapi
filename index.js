@@ -546,6 +546,9 @@ class VwWeConnect {
                                             this.getIdStatus(vin).catch(() => {
                                                 this.log.error("get id status Failed");
                                             });
+                                            this.getIdParkingPosition(vin).catch(() => {
+                                                this.log.error("get id parking position Failed");
+                                            });
                                         } else if (this.config.type === "audidata") {
                                             this.getAudiDataStatus(vin).catch(() => {
                                                 this.log.error("get audi data status Failed");
@@ -1015,6 +1018,10 @@ class VwWeConnect {
             this.vinArray.forEach((vin) => {
                 this.getIdStatus(vin).catch(() => {
                     this.log.error("get id status Failed");
+                    this.refreshIDToken().catch(() => {});
+                });
+                this.getIdParkingPosition(vin).catch(() => {
+                    this.log.error("get id parking position Failed");
                     this.refreshIDToken().catch(() => {});
                 });
                 //this.getWcData();
@@ -2281,6 +2288,72 @@ getSkodaEStatus(vin) {
         });
     }
 
+    getIdParkingPosition(vin) {
+        return new Promise((resolve, reject) => {
+            this.log.debug("START getIdParkingPosition");
+            request.get(
+                {
+                    url: "https://mobileapi.apps.emea.vwapps.io/vehicles/" + vin + "/parkingposition",
+
+                    headers: {
+                        accept: "*/*",
+                        "content-type": "application/json",
+                        "content-version": "1",
+                        "x-newrelic-id": "VgAEWV9QDRAEXFlRAAYPUA==",
+                        "user-agent": this.userAgent,
+                        "accept-language": "de-de",
+                        authorization: "Bearer " + this.config.atoken,
+                    },
+                    followAllRedirects: true,
+                    gzip: true,
+                    json: true,
+                },
+                (err, resp, body) => {
+                    if (err || (resp && resp.statusCode >= 400)) {
+                        err && this.log.error(err);
+                        resp && this.log.error(resp.statusCode);
+
+                        reject();
+                        return;
+                    }
+                    this.log.debug("getIdParkingPosition: " + JSON.stringify(body));
+                    this.idParkingPosition = body;
+                    this.boolFinishIdData = true;
+
+                    try {
+                        const adapter = this;
+                        traverse(body.data).forEach(function (value) {
+                            if (this.path.length > 0 && this.isLeaf) {
+                                const modPath = this.path;
+                                this.path.forEach((pathElement, pathIndex) => {
+                                    if (!isNaN(parseInt(pathElement))) {
+                                        let stringPathIndex = parseInt(pathElement) + 1 + "";
+                                        while (stringPathIndex.length < 2) stringPathIndex = "0" + stringPathIndex;
+                                        const key = this.path[pathIndex - 1] + stringPathIndex;
+                                        const parentIndex = modPath.indexOf(pathElement) - 1;
+                                        modPath[parentIndex] = key;
+                                        modPath.splice(parentIndex + 1, 1);
+                                    }
+                                });
+                                if (modPath[modPath.length - 1] !== "$") {
+                                    if (typeof value === "object") {
+                                        value = JSON.stringify(value);
+                                    }
+                                }
+                            }
+                        });
+
+                        resolve();
+                    } catch (err) {
+                        this.log.error(err);
+                        reject();
+                    }
+                }
+            );
+            this.log.debug("END getIdStatus");
+        });
+    }
+
     getAudiDataStatus(vin) {
         return new Promise((resolve, reject) => {
             const statusArray = [
@@ -2406,7 +2479,8 @@ getSkodaEStatus(vin) {
                         if (key == "targetSOC_pct") {
                             chargingStates[keyName] = this.config.targetSOC;
                         }
-                    } else if (this.config.chargeCurrent == "maximum" || this.config.chargeCurrent == "reduced") {
+                    }
+                    if (this.config.chargeCurrent == "maximum" || this.config.chargeCurrent == "reduced") {
                         if (key == "maxChargeCurrentAC") {
                             chargingStates[keyName] = this.config.chargeCurrent;
                         }
