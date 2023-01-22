@@ -1145,49 +1145,7 @@ class VwWeConnect {
         });
     }
 
-    getCarData() {
-        return new Promise((resolve, reject) => {
-            this.log.debug("START getCarData");
-            request.get(
-                {
-                    url: "https://customer-profile.apps.emea.vwapps.io/v1/customers/" + this.config.userid + "/realCarData",
-                    headers: {
-                        "user-agent": this.userAgent,
-                        "X-App-version": this.xappversion,
-                        "X-App-name": this.xappname,
-                        authorization: "Bearer " + this.config.atoken,
-                        accept: "application/json",
-                        Host: "customer-profile.apps.emea.vwapps.io",
-                    },
-                    followAllRedirects: true,
-                },
-                (err, resp, body) => {
-                    if (err || (resp && resp.statusCode >= 400)) {
-                        err && this.log.error(err);
-                        resp && this.log.error(resp.statusCode);
-                        reject();
-                        return;
-                    }
-                    try {
-                        if (body.error) {
-                            this.log.error(JSON.stringify(body.error));
-                            reject();
-                        }
-                        this.log.debug("getCarData: " + JSON.stringify(body));
-                        this.carData = body;
-                        this.boolFinishCarData = true;
-                        const data = JSON.parse(body);
-
-                        resolve();
-                    } catch (err) {
-                        this.log.error(err);
-                        reject();
-                    }
-                }
-            );
-        });
-    }
-
+   
     getVehicles() {
         return new Promise((resolve, reject) => {
             this.log.debug("START getVehicles");
