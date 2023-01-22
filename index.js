@@ -1519,8 +1519,8 @@ class VwWeConnect {
                         reject();
                         return;
                     }
-                    this.log.error("getIdParkingPosition: " + JSON.stringify(body));
-                    if (typeof (body) !== "undefined") {
+                    this.log.debug("getIdParkingPosition: " + JSON.stringify(body));
+                    if (typeof (body) != "undefined") {
                         this.idParkingPosition = body;
                         this.idParkingPosition.data.carIsParked = true;
                     } else {
