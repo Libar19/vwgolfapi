@@ -148,12 +148,12 @@ class VwWeConnect {
         this.boolFinishIdData = this.boolFinishSkodaEData;
       }
 
-      this.log.debug(" Id/SkodaE: " + this.boolFinishIdData +
-                     " HomeCharge: " + this.boolFinishHomecharging +
-                     " ChargePay: " + this.boolFinishChargeAndPay +
-                     " Stat: " + this.boolFinishStations +
-                     " Car: " + this.boolFinishCarData +
-                     " Vehic: " + this.boolFinishVehicles);
+    //  this.log.debug(" Id/SkodaE: " + this.boolFinishIdData +
+     //                " HomeCharge: " + this.boolFinishHomecharging +
+     //                " ChargePay: " + this.boolFinishChargeAndPay +
+    //                 " Stat: " + this.boolFinishStations +
+    //                 " Car: " + this.boolFinishCarData +
+    //                 " Vehic: " + this.boolFinishVehicles);
       return (this.boolFinishIdData || this.config.chargerOnly)
 //          && this.boolFinishHomecharging
 //          && this.boolFinishChargeAndPay
@@ -382,11 +382,9 @@ class VwWeConnect {
             const finishedReadingInterval = setInterval(() => {
                 if (this.finishedReading())
                     {
-                            console.log("finished reading");
                     clearInterval(finishedReadingInterval)
                     resolve("done!");
                 } else {
-                console.log("still reading");
                 }
             }, 1000)
         });
@@ -2252,6 +2250,11 @@ getSkodaEStatus(vin) {
                     }
                     this.log.debug("getIdStatus: " + JSON.stringify(body));
                     this.idData = body;
+                    if(typeof(this.idParkingPosition) != "undefined") {
+                        this.idData.parking = {};
+                        Object.assign(this.idData.parking, this.idParkingPosition);
+                    }
+
                     this.boolFinishIdData = true;
 
                     try {
@@ -2316,8 +2319,13 @@ getSkodaEStatus(vin) {
                         reject();
                         return;
                     }
-                    this.log.debug("getIdParkingPosition: " + JSON.stringify(body));
-                    this.idParkingPosition = body;
+                    this.log.error("getIdParkingPosition: " + JSON.stringify(body));
+                    if (typeof(body) !== "undefined") {
+                        this.idParkingPosition = body;
+                        this.idParkingPosition.data.carIsParked = true;
+                    } else {
+                        this.idParkingPosition = {"data": {"carIsParked": false}};
+                    }
 
                     try {
                         const adapter = this;
