@@ -979,9 +979,7 @@ class VwWeConnect {
 
         this.config.atoken = tokens.access_token;
         this.config.rtoken = tokens.refresh_token;
-        if (this.config.type === "seatelli" || this.config.type === "skodapower") {
-            this.config.atoken = tokens.token;
-        }
+        
         if (this.refreshTokenInterval) {
             clearInterval(this.refreshTokenInterval);
         }
