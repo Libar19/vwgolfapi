@@ -49,7 +49,6 @@ class VwWeConnect {
         userid: 0,
         user: "testuser",
         password: "testpass",
-        pin: "123",
         type: "id",
         interval: 10,
         forceinterval: 0,
@@ -157,11 +156,10 @@ class VwWeConnect {
             && this.boolFinishVehicles;
     }
 
-    setCredentials(pUser, pPass, pPin) {
+    setCredentials(pUser, pPass) {
         //this.config.userid = 0;
         this.config.user = pUser;
         this.config.password = pPass;
-        this.config.pin = pPin;
         //this.config.type = "id";
         this.config.interval = 0.5;
         //this.config.forceinterval = 360; // shouldn't be smaller than 360mins, default 0 (off)
