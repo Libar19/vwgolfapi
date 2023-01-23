@@ -1435,7 +1435,7 @@ class VwWeConnect {
                         Object.assign(this.idData.parking, this.idParkingPosition);
                     }
 
-                    runEventEmitters();
+                    this.runEventEmitters();
 
                     this.boolFinishIdData = true;
 
