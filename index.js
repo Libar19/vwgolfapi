@@ -1381,7 +1381,7 @@ class VwWeConnect {
     }
 
     runEventEmitters() {
-        module.exports.idStatusEmitter.emit('eventRunStarted', this.idData.parking.data);
+        module.exports.idStatusEmitter.emit('eventRunStarted');
 
         if (typeof(this.idDataOld) == "undefined") {
             return;
@@ -1389,12 +1389,21 @@ class VwWeConnect {
 
         try {
             // parking 
-            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); }
+            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { 
+                module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); 
+                setTimeout(() => {
+                    if(this.idData.parking.data.carIsParked && this.idData.access.accessStatus.value.overallStatus != "safe") {
+                        module.exports.idStatusEmitter.emit('statusNotSafe');
+                    }
+                }, 5 * 60 * 1000)
+            }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
 
             // charging
+            if (this.idData.charging.chargingStatus.value.ChargingState.includes("chargePurposeReached") ==  && this.idDataOld.charging.chargingStatus.value.ChargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
+            if (this.idData.charging.chargingStatus.value.ChargingState == "charging" && this.idDataOld.charging.chargingStatus.value.ChargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
+            if (this.idData.charging.chargingStatus.value.ChargingState != "charging" && this.idDataOld.charging.chargingStatus.value.ChargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             
-
         } catch(err) {
             this.log.error(err);
         }
