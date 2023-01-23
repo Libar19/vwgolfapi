@@ -1,7 +1,7 @@
 "use strict";
 
 // latest checked version of ioBroker.vw-connect: latest // https://github.com/TA2k/ioBroker.vw-connect/commit/604cdc1aacee0d13f189829aed985f35281f2016
-import { EventEmitter } from 'node:events';
+var EventEmitter = require('events').EventEmitter;
 
 const request = require("request");
 const crypto = require("crypto");
@@ -9,8 +9,7 @@ const { Crypto } = require("@peculiar/webcrypto");
 const { v4: uuidv4 } = require("uuid");
 const traverse = require("traverse");
 
-class myEmitter extends EventEmitter {}
-export const idStatusEmitter = new myEmitter();
+imodule.exports.idStatusEmitter = new EventEmitter();
 
 class Log {
     constructor(logLevel) {
@@ -1382,11 +1381,11 @@ class VwWeConnect {
     }
 
     runEventEmitters() {
+        idStatusEmitter.emit('eventRunStarted');
+
         if (typeof(this.idDataOld) == "undefined") {
             return;
         }
-
-        idStatusEmitter.emit('eventrun');
 
         try {
             if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { idStatusEmitter.emit('parked'); }
