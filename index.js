@@ -1381,15 +1381,15 @@ class VwWeConnect {
     }
 
     runEventEmitters() {
-        idStatusEmitter.emit('eventRunStarted');
+        module.exports.idStatusEmitter.emit('eventRunStarted');
 
         if (typeof(this.idDataOld) == "undefined") {
             return;
         }
 
         try {
-            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { idStatusEmitter.emit('parked'); }
-            if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { idStatusEmitter.emit('notParked'); }
+            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('parked'); }
+            if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
 
 
         } catch(err) {
