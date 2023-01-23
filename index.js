@@ -1398,7 +1398,8 @@ class VwWeConnect {
                 }, 5 * 60 * 1000)
             }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
-
+        console.log(this.idData.charging.chargingStatus.value.chargingState);
+        console.log(this.idDataOld.charging.chargingStatus.value.chargingState);
             // charging
             if (this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
