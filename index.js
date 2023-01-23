@@ -1400,9 +1400,9 @@ class VwWeConnect {
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
 
             // charging
-            if (this.idData.charging.chargingStatus.value.ChargingState.includes("chargePurposeReached") && this.idDataOld.charging.chargingStatus.value.ChargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
-            if (this.idData.charging.chargingStatus.value.ChargingState == "charging" && this.idDataOld.charging.chargingStatus.value.ChargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
-            if (this.idData.charging.chargingStatus.value.ChargingState != "charging" && this.idDataOld.charging.chargingStatus.value.ChargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
+            if (this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
+            if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
+            if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             
         } catch(err) {
             this.log.error(err);
