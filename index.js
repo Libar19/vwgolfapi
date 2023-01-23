@@ -9,7 +9,7 @@ const { Crypto } = require("@peculiar/webcrypto");
 const { v4: uuidv4 } = require("uuid");
 const traverse = require("traverse");
 
-imodule.exports.idStatusEmitter = new EventEmitter();
+module.exports.idStatusEmitter = new EventEmitter();
 
 class Log {
     constructor(logLevel) {
