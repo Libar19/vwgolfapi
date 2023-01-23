@@ -1,13 +1,16 @@
 "use strict";
 
 // latest checked version of ioBroker.vw-connect: latest // https://github.com/TA2k/ioBroker.vw-connect/commit/604cdc1aacee0d13f189829aed985f35281f2016
+import { EventEmitter } from 'node:events';
 
 const request = require("request");
 const crypto = require("crypto");
 const { Crypto } = require("@peculiar/webcrypto");
 const { v4: uuidv4 } = require("uuid");
 const traverse = require("traverse");
-const geohash = require("ngeohash");
+
+class myEmitter extends EventEmitter {}
+export const idStatusEmitter = new myEmitter();
 
 class Log {
   constructor(logLevel) {
@@ -2220,6 +2223,23 @@ getSkodaEStatus(vin) {
         });
     }
 
+    runEventEmitters() {
+        if (typeof(this.idDataOld) == "undefined") {
+            return;
+        }
+
+        idStatusEmitter.emit('eventrun');
+
+        try {
+            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { idStatusEmitter.emit('parked'); }
+            if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { idStatusEmitter.emit('notParked'); }
+
+
+        } catch(err) {
+            this.log.error(err);
+        }
+    }
+
     getIdStatus(vin) {
         return new Promise((resolve, reject) => {
             this.log.debug("START getIdStatus");
@@ -2249,11 +2269,16 @@ getSkodaEStatus(vin) {
                         return;
                     }
                     this.log.debug("getIdStatus: " + JSON.stringify(body));
+                    if (typeof(this.idData) != "undefined") {
+                        this.idDataOld = this.idData;
+                    }
                     this.idData = body;
                     if(typeof(this.idParkingPosition) != "undefined") {
                         this.idData.parking = {};
                         Object.assign(this.idData.parking, this.idParkingPosition);
                     }
+
+                    runEventEmitters();
 
                     this.boolFinishIdData = true;
 
