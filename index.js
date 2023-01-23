@@ -1402,6 +1402,7 @@ class VwWeConnect {
             if (this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
+            if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
             
         } catch(err) {
             this.log.error(err);
