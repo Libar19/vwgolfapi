@@ -1423,7 +1423,6 @@ class VwWeConnect {
         } catch(err) {
             this.log.error(err);
         }
-        console.log('eventrunstopped');
     }
 
     getIdStatus(vin) {
