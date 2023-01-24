@@ -1383,7 +1383,7 @@ class VwWeConnect {
             console.log('promisestarted');
             var counter = 0
             let checkInterval = setInterval(() => {
-                if (this.idData.charging.chargingStatus.value.chargingState == "charging") {
+                if (this.idData.charging.chargingStatus.value.chargingState != "charging") {
                     clearInterval(checkInterval);
                     reject('safe');
                     return;
@@ -1415,11 +1415,7 @@ class VwWeConnect {
             if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { 
                 module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); 
                 console.log('checksafeflag to be started');
-                this.checkSafeFlag().catch((err) => {
-                    // handle Promise rejection here
-                    console.error('outside func');
-                    console.error(err);
-                });                
+                this.checkSafeFlag();                
             }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
             
