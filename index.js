@@ -82,7 +82,7 @@ class VwWeConnect {
         this.updateInterval = null;
         this.fupdateInterval = 0; // set force update interval to 0 => deactivated;
         this.refreshTokenTimeout = null;
-
+        
         this.homeRegion = {};
         this.homeRegionSetter = {};
 
@@ -162,6 +162,7 @@ class VwWeConnect {
         this.config.password = pPass;
         //this.config.type = "id";
         this.config.interval = 0.5;
+        this.config.checkSafeStatusTimeout = 5; // minutes to wait for event if car is not locked or windows not closed
         //this.config.forceinterval = 360; // shouldn't be smaller than 360mins, default 0 (off)
         //this.config.numberOfTrips = 1;
     }
@@ -1378,34 +1379,29 @@ class VwWeConnect {
         });
     }
 
-    async checkSafeFlag() {
+    async checkSafeFlag(timeout) {
         return new Promise((resolve, reject) => {
-            console.log('promisestarted');
             var counter = 0
             let checkInterval = setInterval(() => {
-                if (this.idData.charging.chargingStatus.value.chargingState != "charging") {
+                if (this.idData.access.accessStatus.value.overallStatus == "safe") {
                     clearInterval(checkInterval);
                     reject('safe');
                     return;
                 }
-                if (counter++ >= 3) { 
+                if (counter++ >= timeout / 2) { 
                     clearInterval(checkInterval);
-                    console.log('unsafe!');
                     module.exports.idStatusEmitter.emit('statusNotSafe');
                     resolve();
                     return;
                 }
             }, 30 * 1000);
         }).catch((err) => {
-                    // handle Promise rejection here
-            console.error('inside func');
-                    console.error(err);
-                });                
+        this.log.debug(err);
+        });                
     }
     
     runEventEmitters() {
         module.exports.idStatusEmitter.emit('eventRunStarted');
-        console.log('eventrunstarted');
         if (typeof(this.idDataOld) == "undefined") {
             return;
         }
@@ -1414,18 +1410,13 @@ class VwWeConnect {
             // parking 
             if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { 
                 module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); 
-                console.log('checksafeflag to be started');
-                this.checkSafeFlag();                
+                this.checkSafeFlag(this.config.checkSafeStatusTimeout);                
             }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
             
             // charging
             if (this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
-            if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { 
-                module.exports.idStatusEmitter.emit('chargingStarted');
-                console.log('checksafeflag to be started');
-                this.checkSafeFlag();
-            }
+            if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
             
