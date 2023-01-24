@@ -1378,9 +1378,34 @@ class VwWeConnect {
         });
     }
 
+    checkSafeFlag() {
+        return new Promise((resolve, reject) => {
+            console.log('promisestarted');
+            var counter = 0
+            let checkInterval = setInterval(() => {
+                if (this.idData.access.accessStatus.value.overallStatus == "safe") {
+                    clearInterval(checkInterval);
+                    reject();
+                    return;
+                }
+                if (counter++ >= 10) { 
+                    clearInterval(checkInterval);
+                    resolve();
+                    return;
+                }
+            }, 30 * 1000);
+        });
+    }
+    
+    checkSafeFlag
+    .then(() => {
+        console.log('unsafe!');
+        module.exports.idStatusEmitter.emit('statusNotSafe');
+    });
+    
     runEventEmitters() {
         module.exports.idStatusEmitter.emit('eventRunStarted');
-
+console.log('eventrunstarted');
         if (typeof(this.idDataOld) == "undefined") {
             return;
         }
@@ -1389,18 +1414,19 @@ class VwWeConnect {
             // parking 
             if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { 
                 module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); 
-                setTimeout(() => {
-                    if(this.idData.parking.data.carIsParked && this.idData.access.accessStatus.value.overallStatus != "safe") {
-                        module.exports.idStatusEmitter.emit('statusNotSafe');
-                    }
-                }, 5 * 60 * 1000)
+                console.log('checksafeflag to be started');
+                this.checkSafeFlag();
+                });                
             }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
-        console.log(this.idData.charging.chargingStatus.value.chargingState);
-        console.log(this.idDataOld.charging.chargingStatus.value.chargingState);
+            
             // charging
             if (this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
-            if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
+            if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { 
+                module.exports.idStatusEmitter.emit('chargingStarted');
+                console.log('checksafeflag to be started');
+                this.checkSafeFlag();
+            }
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
             
