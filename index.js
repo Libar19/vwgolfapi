@@ -1420,6 +1420,12 @@ class VwWeConnect {
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
             
+            // climatisation
+            if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
+            if (this.idData.climatisation.climatisationStatus.value.climatisationState != "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState == "off") { module.exports.idStatusEmitter.emit('climatisationStarted'); }
+            if (this.idData.climatisation.climatisationSettings.value.targetTemperature_C != this.idDataOld.climatisation.climatisationSettings.value.targetTemperature_C) { module.exports.idStatusEmitter.emit('climatisationTemperatureUpdated'); }
+           
+           
         } catch(err) {
             this.log.error(err);
         }
