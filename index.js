@@ -1397,7 +1397,7 @@ class VwWeConnect {
         });
     }
     
-    checkSafeFlag
+    checkSafeFlag()
     .then(() => {
         console.log('unsafe!');
         module.exports.idStatusEmitter.emit('statusNotSafe');
