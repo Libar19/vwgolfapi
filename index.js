@@ -1378,7 +1378,7 @@ class VwWeConnect {
         });
     }
 
-    async function checkSafeFlag() {
+    async checkSafeFlag() {
         return new Promise((resolve, reject) => {
             console.log('promisestarted');
             var counter = 0
