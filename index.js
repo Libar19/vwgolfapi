@@ -1378,7 +1378,7 @@ class VwWeConnect {
         });
     }
 
-    checkSafeFlag() {
+    async function checkSafeFlag() {
         return new Promise((resolve, reject) => {
             console.log('promisestarted');
             var counter = 0
@@ -1390,6 +1390,8 @@ class VwWeConnect {
                 }
                 if (counter++ >= 10) { 
                     clearInterval(checkInterval);
+                    console.log('unsafe!');
+                    module.exports.idStatusEmitter.emit('statusNotSafe');
                     resolve();
                     return;
                 }
@@ -1397,15 +1399,9 @@ class VwWeConnect {
         });
     }
     
-    checkSafeFlag()
-    .then(() => {
-        console.log('unsafe!');
-        module.exports.idStatusEmitter.emit('statusNotSafe');
-    });
-    
     runEventEmitters() {
         module.exports.idStatusEmitter.emit('eventRunStarted');
-console.log('eventrunstarted');
+        console.log('eventrunstarted');
         if (typeof(this.idDataOld) == "undefined") {
             return;
         }
@@ -1415,7 +1411,9 @@ console.log('eventrunstarted');
             if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { 
                 module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); 
                 console.log('checksafeflag to be started');
-                this.checkSafeFlag();
+                this.checkSafeFlag().catch((err) => {
+                    // handle Promise rejection here
+                    console.error(err);
                 });                
             }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
