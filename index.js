@@ -1383,12 +1383,12 @@ class VwWeConnect {
             console.log('promisestarted');
             var counter = 0
             let checkInterval = setInterval(() => {
-                if (this.idData.access.accessStatus.value.overallStatus == "safe") {
+                if (this.idData.charging.chargingStatus.value.chargingState == "charging") {
                     clearInterval(checkInterval);
-                    reject();
+                    reject('safe');
                     return;
                 }
-                if (counter++ >= 10) { 
+                if (counter++ >= 3) { 
                     clearInterval(checkInterval);
                     console.log('unsafe!');
                     module.exports.idStatusEmitter.emit('statusNotSafe');
@@ -1431,6 +1431,7 @@ class VwWeConnect {
         } catch(err) {
             this.log.error(err);
         }
+        console.log('eventrunstopped');
     }
 
     getIdStatus(vin) {
