@@ -1423,6 +1423,8 @@ class VwWeConnect {
             // climatisation
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState != "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState == "off") { module.exports.idStatusEmitter.emit('climatisationStarted'); }
+            if (this.idData.climatisation.climatisationStatus.value.climatisationState == "cooling" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "cooling") { module.exports.idStatusEmitter.emit('climatisationCoolingStarted'); }
+            if (this.idData.climatisation.climatisationStatus.value.climatisationState == "heating" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "heating") { module.exports.idStatusEmitter.emit('climatisationHeatingStarted'); }
             if (this.idData.climatisation.climatisationSettings.value.targetTemperature_C != this.idDataOld.climatisation.climatisationSettings.value.targetTemperature_C) { module.exports.idStatusEmitter.emit('climatisationTemperatureUpdated'); }
            
            
