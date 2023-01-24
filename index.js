@@ -381,16 +381,16 @@ class VwWeConnect {
         });
 
         // Reset the connection indicator during startup
-        this.type = "VW";
-        this.country = "DE";
-        this.clientId = "9496332b-ea03-4091-a224-8c746b885068%40apps_vw-dilab_com";
-        this.xclientId = "38761134-34d0-41f3-9a73-c4be88d7d337";
-        this.scope = "openid%20profile%20mbb%20email%20cars%20birthdate%20badge%20address%20vin";
-        this.redirect = "carnet%3A%2F%2Fidentity-kit%2Flogin";
-        this.xrequest = "de.volkswagen.carnet.eu.eremote";
-        this.responseType = "id_token%20token%20code";
-        this.xappversion = "5.1.2";
-        this.xappname = "eRemote";
+//         this.type = "VW";
+//         this.country = "DE";
+//         this.clientId = "9496332b-ea03-4091-a224-8c746b885068%40apps_vw-dilab_com";
+//         this.xclientId = "38761134-34d0-41f3-9a73-c4be88d7d337";
+//         this.scope = "openid%20profile%20mbb%20email%20cars%20birthdate%20badge%20address%20vin";
+//         this.redirect = "carnet%3A%2F%2Fidentity-kit%2Flogin";
+//         this.xrequest = "de.volkswagen.carnet.eu.eremote";
+//         this.responseType = "id_token%20token%20code";
+//         this.xappversion = "5.1.2";
+//         this.xappname = "eRemote";
 
         this.type = "Id";
         this.country = "DE";
