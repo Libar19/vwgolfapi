@@ -1396,7 +1396,11 @@ class VwWeConnect {
                     return;
                 }
             }, 30 * 1000);
-        });
+        }).catch((err) => {
+                    // handle Promise rejection here
+            console.error('inside func');
+                    console.error(err);
+                });                
     }
     
     runEventEmitters() {
@@ -1413,6 +1417,7 @@ class VwWeConnect {
                 console.log('checksafeflag to be started');
                 this.checkSafeFlag().catch((err) => {
                     // handle Promise rejection here
+                    console.error('outside func');
                     console.error(err);
                 });                
             }
