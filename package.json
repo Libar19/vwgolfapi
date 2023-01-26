@@ -1,20 +1,21 @@
 {
   "name": "npm-vwconnectapi",
-  "version": "0.9.1",
-  "description": "Provides an API for VW Connect",
+  "version": "1.0.0",
+  "description": "Provides an API for We Connect ID",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "Volkswagen",
-    "Connect",
+    "weconnect",
     "API",
     "ID.3",
-    "Elli Charger",
-    "WeCharge"
+    "ID.4",
+    "weconnectid",
+    "vw connect"
   ],
-  "author": "nightsha-de",
+  "author": "adhyh",
   "license": "MIT",
   "dependencies": {
     "@peculiar/webcrypto": "^1.0.22",
