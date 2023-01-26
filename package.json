@@ -1,5 +1,5 @@
 {
-  "name": "npm-vwconnectapi",
+  "name": "npm-vwconnectidapi",
   "version": "1.0.0",
   "description": "Provides an API for We Connect ID",
   "main": "index.js",
