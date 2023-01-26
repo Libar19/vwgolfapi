@@ -4,7 +4,7 @@ and https://github.com/nightsha-de/npm-vwconnectapi
 
 Clone this repository to $path and use
 ```
-sudo npm install -g $path
+sudo npm install -g npm-vwconnectidapi
 ```
 to install.
 
