@@ -1,4 +1,4 @@
-# npm-vwconnectapi
+# npm-vwconnectidapi
 NPM package for a We Connect ID API based on https://github.com/TA2k/ioBroker.vw-connect  
 and https://github.com/nightsha-de/npm-vwconnectapi
 
