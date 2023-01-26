@@ -1,5 +1,6 @@
 # npm-vwconnectapi
-NPM package for a VW Connect API based on https://github.com/TA2k/ioBroker.vw-connect
+NPM package for a We Connect ID API based on https://github.com/TA2k/ioBroker.vw-connect
+and https://github.com/nightsha-de/npm-vwconnectapi
 
 Clone this repository to $path and use
 ```
@@ -10,16 +11,15 @@ to install.
 ### Example code:
 
 ```javascript
-const api = require('npm-vwconnectapi');
+const api = require('npm-vwconnectidapi');
 var log = new api.Log();
 var vwConn = new api.VwWeConnect();
 vwConn.setLogLevel("INFO"); // optional, ERROR (default), INFO, WARN or DEBUG
-vwConn.setCredentials("YourEmail", "YourPassword", "YourPin");
-vwConn.setConfig("id"); // type
+vwConn.setCredentials("YourEmail", "YourPassword");
+
 vwConn.getData()
   .then(() => {
-    log.info("SOC " + vwConn.idData.data.batteryStatus.currentSOC_pct + "%");
-
+    
     vwConn.setActiveVin("the VIN of your ID"); // must exist in vwConn.vehicles
     //vwConn.startClimatisation(17).then(...)
     //vwConn.stopClimatisation().then(...)
@@ -46,7 +46,7 @@ vwConn.getData()
 ### Methods supplied by the API:
 All methods work with promises.
 
-#### vwConn.setCredentials(user, password, pin)
+#### vwConn.setCredentials(user, password)
 Login credentials. Pin is not needed for the ID connect, but probably for other car types.
 
 #### vwConn.setConfig(type)
