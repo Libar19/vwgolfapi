@@ -482,7 +482,7 @@ class VwWeConnect {
                     this.log.warn("Failed to get login url");
                 });
                 if (!url) {
-                    url = "https://login.apps.emea.vwapps.io/authorize?nonce=" + this.randomString(16) + "&redirect_uri=weconnect://authenticated";
+                    url = "https://emea.bff.cariad.digital/user-login/v1/authorize?nonce=" + this.randomString(16) + "&redirect_uri=weconnect://authenticated";
                 }
             }
             const loginRequest = request(
@@ -798,9 +798,9 @@ class VwWeConnect {
             request(
                 {
                     method: "GET",
-                    url: "https://login.apps.emea.vwapps.io/authorize?nonce=" + this.randomString(16) + "&redirect_uri=weconnect://authenticated",
+                    url: "https://emea.bff.cariad.digital/user-login/v1/authorize?nonce=" + this.randomString(16) + "&redirect_uri=weconnect://authenticated",
                     headers: {
-                        Host: "login.apps.emea.vwapps.io",
+                        Host: "emea.bff.cariad.digital",
                         "user-agent": this.userAgent,
                         accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                         "accept-language": "de-de",
@@ -872,7 +872,7 @@ class VwWeConnect {
         // const jwtid_token = hashArray[5].substring(hashArray[5].indexOf("=") + 1);
         let method = "POST";
         let body = "auth_code=" + jwtauth_code + "&id_token=" + jwtid_token;
-        let url = "https://tokenrefreshservice.apps.emea.vwapps.io/exchangeAuthCode";
+        let url = "https://emea.bff.cariad.digital/exchangeAuthCode";
         let headers = {
             // "user-agent": this.userAgent,
             "X-App-version": this.xappversion,
@@ -884,7 +884,7 @@ class VwWeConnect {
         body += "&brand=" + this.config.type;
 
 
-        url = "https://login.apps.emea.vwapps.io/login/v1";
+        url = "https://emea.bff.cariad.digital/user-login/login/v1";
         let redirerctUri = "weconnect://authenticated";
 
         body = JSON.stringify({
@@ -905,7 +905,7 @@ class VwWeConnect {
         };
         if (this.type === "Wc") {
             method = "GET";
-            url = "https://wecharge.apps.emea.vwapps.io/user-identity/v1/identity/login?redirect_uri=wecharge://authenticated&code=" + jwtauth_code;
+            url = "https://emea.bff.cariad.digital/user-identity/v1/identity/login?redirect_uri=wecharge://authenticated&code=" + jwtauth_code;
             redirerctUri = "wecharge://authenticated";
             headers["x-api-key"] = "yabajourasW9N8sm+9F/oP==";
         }
@@ -1043,7 +1043,7 @@ class VwWeConnect {
     }
 
     refreshToken(isVw) {
-        let url = "https://tokenrefreshservice.apps.emea.vwapps.io/refreshTokens";
+        let url = "https://emea.bff.cariad.digital/refreshTokens";
         let rtoken = this.config.rtoken;
         let body = "refresh_token=" + rtoken;
         let form = "";
@@ -1159,7 +1159,7 @@ class VwWeConnect {
                 Accept: "application/json",
             };
 
-            url = "https://mobileapi.apps.emea.vwapps.io/vehicles";
+            url = "https://emea.bff.cariad.digital/vehicle/v1/vehicles";
             headers = {
                 accept: "*/*",
                 "content-type": "application/json",
@@ -1232,10 +1232,10 @@ class VwWeConnect {
             authorization: "Bearer " + this.config.atoken,
             wc_access_token: this.config.wc_access_token,
         };
-        this.genericRequest("https://wecharge.apps.emea.vwapps.io/charge-and-pay/v1/user/subscriptions", header, "wecharge.chargeandpay.subscriptions", [404], "result")
+        this.genericRequest("https://emea.bff.cariad.digital/charge-and-pay/v1/user/subscriptions", header, "wecharge.chargeandpay.subscriptions", [404], "result")
             .then((body) => {
                 body.forEach((subs) => {
-                    this.genericRequest("https://wecharge.apps.emea.vwapps.io/charge-and-pay/v1/user/tariffs/" + subs.tariff_id, header, "wecharge.chargeandpay.tariffs." + subs.tariff_id, [
+                    this.genericRequest("https://emea.bff.cariad.digital/charge-and-pay/v1/user/tariffs/" + subs.tariff_id, header, "wecharge.chargeandpay.tariffs." + subs.tariff_id, [
                         404,
                     ]).catch((hideError) => {
                         if (hideError) {
@@ -1253,7 +1253,7 @@ class VwWeConnect {
                 }
                 this.log.error("Failed to get subscription");
             });
-        this.genericRequest("https://wecharge.apps.emea.vwapps.io/charge-and-pay/v1/charging/records?limit=" + limit + "&offset=0", header, "wecharge.chargeandpay.records", [404], "result")
+        this.genericRequest("https://emea.bff.cariad.digital/charge-and-pay/v1/charging/records?limit=" + limit + "&offset=0", header, "wecharge.chargeandpay.records", [404], "result")
             .then((body) => {
                 this.log.debug("wecharge.chargeandpay.records.newestItem: " + JSON.stringify(body));
                 this.chargeAndPay = body;
@@ -1268,14 +1268,14 @@ class VwWeConnect {
                 this.log.error("Failed to get chargeandpay records");
 
             });
-        this.genericRequest("https://wecharge.apps.emea.vwapps.io/home-charging/v1/stations?limit=" + limit, header, "wecharge.homecharging.stations", [404], "result", "stations")
+        this.genericRequest("https://emea.bff.cariad.digital/home-charging/v1/stations?limit=" + limit, header, "wecharge.homecharging.stations", [404], "result", "stations")
             .then((body) => {
                 this.stations = body;
                 this.boolFinishStations = true;
                 body.forEach((station) => {
                     this.log.debug("Station: " + station.name + "/" + station.id);
                     this.genericRequest(
-                        "https://wecharge.apps.emea.vwapps.io/home-charging/v1/charging/sessions?station_id=" + station.id + "&limit=" + limit,
+                        "https://emea.bff.cariad.digital/home-charging/v1/charging/sessions?station_id=" + station.id + "&limit=" + limit,
                         header,
                         "wecharge.homecharging.stations." + station.name + ".sessions",
                         [404],
@@ -1303,7 +1303,7 @@ class VwWeConnect {
             });
         const dt = new Date();
         this.genericRequest(
-            "https://wecharge.apps.emea.vwapps.io/home-charging/v1/charging/records?start_date_time_after=2020-05-01T00:00:00.000Z&start_date_time_before=" + dt.toISOString() + "&limit=" + limit,
+            "https://emea.bff.cariad.digital/home-charging/v1/charging/records?start_date_time_after=2020-05-01T00:00:00.000Z&start_date_time_before=" + dt.toISOString() + "&limit=" + limit,
             header,
             "wecharge.homecharging.records",
             [404],
@@ -1438,7 +1438,7 @@ class VwWeConnect {
             this.log.debug("START getIdStatus");
             request.get(
                 {
-                    url: "https://mobileapi.apps.emea.vwapps.io/vehicles/" + vin + "/selectivestatus?jobs=all",
+                    url: "https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/selectivestatus?jobs=all",
 
                     headers: {
                         accept: "*/*",
@@ -1514,7 +1514,7 @@ class VwWeConnect {
             this.log.debug("START getIdParkingPosition");
             request.get(
                 {
-                    url: "https://mobileapi.apps.emea.vwapps.io/vehicles/" + vin + "/parkingposition",
+                    url: "https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/parkingposition",
 
                     headers: {
                         accept: "*/*",
@@ -1648,12 +1648,12 @@ class VwWeConnect {
                 method = "PUT";
             }
             //body = {targetTemperature:22.5,targetTemperatureUnit:"celsius",climatisationWithoutExternalPower:true,climatizationAtUnlock:true,windowHeatingEnabled:true,zoneFrontLeftEnabled:true,zoneFrontRightEnabled:false};
-            this.log.debug("https://mobileapi.apps.emea.vwapps.io/vehicles/" + vin + "/" + action + "/" + value);
+            this.log.debug("https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/" + action + "/" + value);
             this.log.debug("setIdRemote: " + JSON.stringify(body));
             request(
                 {
                     method: method,
-                    url: "https://mobileapi.apps.emea.vwapps.io/vehicles/" + vin + "/" + action + "/" + value,
+                    url: "https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/" + action + "/" + value,
 
                     headers: {
                         "content-type": "application/json",
@@ -1703,7 +1703,7 @@ class VwWeConnect {
             this.log.debug("Token Refresh started");
             request.get(
                 {
-                    url: "https://login.apps.emea.vwapps.io/refresh/v1",
+                    url: "https://emea.bff.cariad.digital/user-login/refresh/v1",
 
                     headers: {
                         accept: "*/*",
