@@ -81,6 +81,29 @@ Start charging.
 #### vwConn.stopCharging()
 Stop charging.
 
+#### vwConn.setDestination(destination)
+Sends a destination to the navigation system. 'destination' is a JS object with the following structure.
+```
+{
+  destinations: [
+    {
+      poiProvider: "unknown",
+      geoCoordinate: {
+        longitude: 5.12345,
+        latitude: 52.12345
+      },
+      destinationName: "Home",
+      address: {
+        country: "Nederland",
+        street: "My Street 1",
+        zipCode: "1234 AA",
+        city: "My City"
+      }
+    }
+  ]
+}
+```
+
 #### Status changes emitted by the API:
 'statusNotSafe' - car is parked and doors remain unlocked or windows opened for >5 minutes.  
 'parked' - Car is parked. Emits parking position as argument.  
