@@ -82,7 +82,7 @@ class VwWeConnect {
         this.updateInterval = null;
         this.fupdateInterval = 0; // set force update interval to 0 => deactivated;
         this.refreshTokenTimeout = null;
-        
+
         this.homeRegion = {};
         this.homeRegionSetter = {};
 
@@ -289,6 +289,24 @@ class VwWeConnect {
                     return;
                 });
             this.log.debug("stopClimatisation <<");
+        });
+    }
+
+        setDestination(destination) {
+        return new Promise(async (resolve, reject) => {
+            this.log.debug("setDestination >>");
+            this.setIdRemote(this.currSession.vin, "destinations", "", destination)
+                .then(() => {
+                    this.log.debug("setDestination successful");
+                    resolve();
+                    return;
+                })
+                .catch(() => {
+                    this.log.error("setDestination failed");
+                    reject();
+                    return;
+                });
+            this.log.debug("setDestination <<");
         });
     }
 
@@ -980,7 +998,7 @@ class VwWeConnect {
 
         this.config.atoken = tokens.access_token;
         this.config.rtoken = tokens.refresh_token;
-        
+
         if (this.refreshTokenInterval) {
             clearInterval(this.refreshTokenInterval);
         }
@@ -1146,7 +1164,7 @@ class VwWeConnect {
         });
     }
 
-   
+
     getVehicles() {
         return new Promise((resolve, reject) => {
             this.log.debug("START getVehicles");
@@ -1388,7 +1406,7 @@ class VwWeConnect {
                     reject('safe');
                     return;
                 }
-                if (counter++ >= timeout / 2) { 
+                if (counter++ >= timeout / 2) {
                     clearInterval(checkInterval);
                     module.exports.idStatusEmitter.emit('statusNotSafe');
                     resolve();
@@ -1397,9 +1415,9 @@ class VwWeConnect {
             }, 30 * 1000);
         }).catch((err) => {
         this.log.debug(err);
-        });                
+        });
     }
-    
+
     runEventEmitters() {
         module.exports.idStatusEmitter.emit('eventRunStarted');
         if (typeof(this.idDataOld) == "undefined") {
@@ -1407,27 +1425,27 @@ class VwWeConnect {
         }
 
         try {
-            // parking 
-            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { 
-                module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); 
-                this.checkSafeFlag(this.config.checkSafeStatusTimeout);                
+            // parking
+            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) {
+                module.exports.idStatusEmitter.emit('parked', this.idData.parking.data);
+                this.checkSafeFlag(this.config.checkSafeStatusTimeout);
             }
             if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
-            
+
             // charging
             if ((this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") || (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idData.charging.chargingSettings.value.targetSOC_pct == this.idData.charging.batteryStatus.value.currentSOC_pct)) && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
-            
+
             // climatisation
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState != "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState == "off") { module.exports.idStatusEmitter.emit('climatisationStarted'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "cooling" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "cooling") { module.exports.idStatusEmitter.emit('climatisationCoolingStarted'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "heating" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "heating") { module.exports.idStatusEmitter.emit('climatisationHeatingStarted'); }
             if (this.idData.climatisation.climatisationSettings.value.targetTemperature_C != this.idDataOld.climatisation.climatisationSettings.value.targetTemperature_C) { module.exports.idStatusEmitter.emit('climatisationTemperatureUpdated'); }
-           
-           
+
+
         } catch(err) {
             this.log.error(err);
         }
@@ -1580,123 +1598,127 @@ class VwWeConnect {
     }
 
     setIdRemote(vin, action, value, bodyContent) {
-        return new Promise(async (resolve, reject) => {
-            this.log.debug("setIdRemote >>");
-            let body = bodyContent || {};
-            if (action === "climatisation" && value === "settings") {
-                const climateStates = this.idData.climatisation.climatisationSettings.value; // get this from the internal object filled by getData()
-                body = {};
-                const allIds = Object.keys(climateStates);
-                allIds.forEach((keyName) => {
-                    let key = keyName.split(".").splice(-1)[0];
-                    if (this.config.targetTempC >= 16 && this.config.targetTempC <= 27) {
-                        if (key == "targetTemperature_C") {
-                            key = "targetTemperature";
-                            climateStates[keyName] = this.config.targetTempC;
-                        }
-                        if (key == "targetTemperature_K" || key == "targetTemperature_F") {
-                            return;
-                            //climateStates[keyName] = this.config.targetTempC + 273.15;
-                        }
-                        if (key == "unitInCar") {
-                            key = "targetTemperatureUnit";
-                        }
+    return new Promise(async (resolve, reject) => {
+        this.log.debug("setIdRemote >>");
+        let body = bodyContent || {};
+        if (action === "climatisation" && value === "settings") {
+            const climateStates = this.idData.climatisation.climatisationSettings.value; // get this from the internal object filled by getData()
+            body = {};
+            const allIds = Object.keys(climateStates);
+            allIds.forEach((keyName) => {
+                let key = keyName.split(".").splice(-1)[0];
+                if (this.config.targetTempC >= 16 && this.config.targetTempC <= 27) {
+                    if (key == "targetTemperature_C") {
+                        key = "targetTemperature";
+                        climateStates[keyName] = this.config.targetTempC;
                     }
-                    else {
-                        this.log.error("Cannot set temperature to " + this.config.targetTempC + "°C.");
-                        reject();
+                    if (key == "targetTemperature_K" || key == "targetTemperature_F") {
                         return;
+                        //climateStates[keyName] = this.config.targetTempC + 273.15;
                     }
-                    if (key.indexOf("Timestamp") === -1) {
-                        body[key] = climateStates[keyName];
+                    if (key == "unitInCar") {
+                        key = "targetTemperatureUnit";
                     }
-                });
-                body["climatisationWithoutExternalPower"] = true;
+                }
+                else {
+                    this.log.error("Cannot set temperature to " + this.config.targetTempC + "°C.");
+                    reject();
+                    return;
+                }
+                if (key.indexOf("Timestamp") === -1) {
+                    body[key] = climateStates[keyName];
+                }
+            });
+            body["climatisationWithoutExternalPower"] = true;
 
-                // body = JSON.stringify(body);
-            }
-            if (action === "charging" && value === "settings") {
-                const chargingStates = this.idData.charging.chargingSettings.value; // get this from the internal object filled by getData()
-                body = {};
-                const allIds = Object.keys(chargingStates);
-                allIds.forEach((keyName) => {
-                    const key = keyName.split(".").splice(-1)[0];
-                    if (this.config.targetSOC > 0 && this.config.targetSOC <= 100) {
-                        if (key == "targetSOC_pct") {
-                            chargingStates[keyName] = this.config.targetSOC;
-                        }
+            // body = JSON.stringify(body);
+        }
+        if (action === "charging" && value === "settings") {
+            const chargingStates = this.idData.charging.chargingSettings.value; // get this from the internal object filled by getData()
+            body = {};
+            const allIds = Object.keys(chargingStates);
+            allIds.forEach((keyName) => {
+                const key = keyName.split(".").splice(-1)[0];
+                if (this.config.targetSOC > 0 && this.config.targetSOC <= 100) {
+                    if (key == "targetSOC_pct") {
+                        chargingStates[keyName] = this.config.targetSOC;
                     }
-                    if (this.config.chargeCurrent == "maximum" || this.config.chargeCurrent == "reduced") {
-                        if (key == "maxChargeCurrentAC") {
-                            chargingStates[keyName] = this.config.chargeCurrent;
-                        }
+                }
+                if (this.config.chargeCurrent == "maximum" || this.config.chargeCurrent == "reduced") {
+                    if (key == "maxChargeCurrentAC") {
+                        chargingStates[keyName] = this.config.chargeCurrent;
                     }
-                    else {
-                        //this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
-                        //reject();
-                        //return;
-                    }
-                    if (key.indexOf("Timestamp") === -1) {
-                        body[key] = chargingStates[keyName];
-                    }
-                });
+                }
+                else {
+                    //this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
+                    //reject();
+                    //return;
+                }
+                if (key.indexOf("Timestamp") === -1) {
+                    body[key] = chargingStates[keyName];
+                }
+            });
 
-                // body = JSON.stringify(body);
-            }
-            let method = "POST";
-            if (value === "settings") {
-                method = "PUT";
-            }
-            //body = {targetTemperature:22.5,targetTemperatureUnit:"celsius",climatisationWithoutExternalPower:true,climatizationAtUnlock:true,windowHeatingEnabled:true,zoneFrontLeftEnabled:true,zoneFrontRightEnabled:false};
-            this.log.debug("https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/" + action + "/" + value);
-            this.log.debug("setIdRemote: " + JSON.stringify(body));
-            request(
-                {
-                    method: method,
-                    url: "https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/" + action + "/" + value,
+        }
+        let method = "POST";
+        if (value === "settings" || action === "destinations") {
+            method = "PUT";
+        }
 
-                    headers: {
-                        "content-type": "application/json",
-                        accept: "*/*",
-                        "accept-language": "de-de",
-                        "user-agent": this.userAgent,
-                        "content-version": "1",
-                        "x-newrelic-id": "VgAEWV9QDRAEXFlRAAYPUA==",
-                        authorization: "Bearer " + this.config.atoken,
-                    },
-                    body: body,
-                    followAllRedirects: true,
-                    json: true,
-                    gzip: true,
+        let urlString = "https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/" + action + "/" + value;
+        if (action === "destinations") {
+            urlString = "https://emea.bff.cariad.digital/vehicle/v1/vehicles/" + vin + "/" + action;
+        }
+        this.log.debug(urlString);
+
+        this.log.debug("setIdRemote: " + JSON.stringify(body));
+        request(
+            {
+                method: method,
+                url: urlString,
+
+                headers: {
+                    "content-type": "application/json",
+                    accept: "*/*",
+                    "accept-language": "de-de",
+                    "user-agent": this.userAgent,
+                    "content-version": "1",
+                    "x-newrelic-id": "VgAEWV9QDRAEXFlRAAYPUA==",
+                    authorization: "Bearer " + this.config.atoken,
                 },
-                (err, resp, body) => {
-                    if (err || (resp && resp.statusCode >= 400)) {
-                        if (resp && resp.statusCode === 401) {
-                            err && this.log.error(err);
-                            resp && this.log.error(resp.statusCode.toString());
-                            body && this.log.error(JSON.stringify(body));
-                            this.refreshIDToken().catch(() => { });
-                            this.log.error("Refresh Token");
-                            reject();
-                            return;
-                        }
+                body: body,
+                followAllRedirects: true,
+                json: true,
+                gzip: true,
+            },
+            (err, resp, body) => {
+                if (err || (resp && resp.statusCode >= 400)) {
+                    if (resp && resp.statusCode === 401) {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
                         body && this.log.error(JSON.stringify(body));
+                        this.refreshIDToken().catch(() => { });
+                        this.log.error("Refresh Token");
                         reject();
                         return;
                     }
-                    try {
-                        this.log.debug(JSON.stringify(body));
-                        resolve();
-                    } catch (err) {
-                        this.log.error(err);
-                        reject();
-                    }
+                    err && this.log.error(err);
+                    resp && this.log.error(resp.statusCode.toString());
+                    body && this.log.error(JSON.stringify(body));
+                    reject();
+                    return;
                 }
-            );
-        });
-    }
+                try {
+                    this.log.debug(JSON.stringify(body));
+                    resolve();
+                } catch (err) {
+                    this.log.error(err);
+                    reject();
+                }
+            }
+        );
+    });
+}
 
     refreshIDToken() {
         return new Promise((resolve, reject) => {
@@ -1760,10 +1782,10 @@ class VwWeConnect {
 
     getVehicleData(vin) {
         return new Promise((resolve, reject) => {
-            
+
             let accept = "application/vnd.vwg.mbb.vehicleDataDetail_v2_1_0+json, application/vnd.vwg.mbb.genericError_v1_0_2+json";
             let url = this.replaceVarInUrl("$homeregion/fs-car/vehicleMgmt/vehicledata/v2/$type/$country/vehicles/$vin/", vin);
-            
+
             const atoken = this.config.vwatoken;
 
             request.get(
@@ -1828,7 +1850,7 @@ class VwWeConnect {
                 return;
             }
             let url = "https://mal-1a.prd.ece.vwg-connect.com/api/rolesrights/operationlist/v3/vehicles/" + vin;
-           
+
             request.get(
                 {
                     url: url,
@@ -1892,7 +1914,7 @@ class VwWeConnect {
     requestStatusUpdate(vin) {
         return new Promise((resolve, reject) => {
             try {
-                
+
                 let method = "POST";
                 let url = this.replaceVarInUrl("$homeregion/fs-car/bs/vsr/v1/$type/$country/vehicles/$vin/requests", vin);
 
@@ -1900,7 +1922,7 @@ class VwWeConnect {
                 // if (this.config.type === "audi") {
                 //     url = this.replaceVarInUrl("https://mal-3a.prd.eu.dp.vwg-connect.com/api/bs/vsr/v1/vehicles/$vin/requests", vin);
                 // }
-                
+
                 this.log.debug("Request update " + url);
                 request(
                     {
@@ -1958,7 +1980,7 @@ class VwWeConnect {
                 }
             }
             let accept = "application/json";
-            
+
             request.get(
                 {
                     url: url,
