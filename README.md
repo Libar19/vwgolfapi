@@ -82,7 +82,8 @@ Start charging.
 Stop charging.
 
 #### vwConn.setDestination(destination)
-Sends a destination to the navigation system. 'destination' is a JS object with the following structure.
+Seems to be broken for the moment, needs more checking.
+~~Sends a destination to the navigation system. 'destination' is a JS object with the following structure.~~
 ```
 {
   destinations: [
@@ -103,6 +104,7 @@ Sends a destination to the navigation system. 'destination' is a JS object with 
   ]
 }
 ```
+
 
 #### Status changes emitted by the API:
 'statusNotSafe' - car is parked and doors remain unlocked or windows opened for >5 minutes.  
