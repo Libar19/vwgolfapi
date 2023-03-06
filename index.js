@@ -28,7 +28,9 @@ class Log {
     }
 
     error(pMessage) {
-        console.log("ERROR: " + pMessage);
+        if (this.logLevel != "NONE") {
+            console.log("ERROR: " + pMessage);
+        }
     }
 
     info(pMessage) {
@@ -922,6 +924,8 @@ class VwWeConnect {
             "accept-language": "de-de",
         };
         if (this.type === "Wc") {
+            reject();
+            return;
             method = "GET";
             url = "https://emea.bff.cariad.digital/user-identity/v1/identity/login?redirect_uri=wecharge://authenticated&code=" + jwtauth_code;
             redirerctUri = "wecharge://authenticated";
