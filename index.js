@@ -59,6 +59,11 @@ class VwWeConnect {
         targetTempC: -1,
         targetSOC: -1,
         chargeCurrent: "maximum",
+        autoUnlockPlug: false,
+        climatizationAtUnlock: true,
+        climatisationWindowHeating: true,
+        climatisationFrontLeft: true,
+        climatisationFrontRight: false,
         historyLimit: 100,
         chargerOnly: false
     }
@@ -214,9 +219,9 @@ class VwWeConnect {
         });
     }
 
-    setChargingSettings(pTargetSOC, pChargeCurrent) {
+    setChargingSettings(pTargetSOC, pChargeCurrent, pAutoUnlockPlug = false) {
         return new Promise(async (resolve, reject) => {
-            this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "% and chargeCurrent to " + pChargeCurrent + " >>");
+            this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "%, chargeCurrent to " + pChargeCurrent + "and autoUnlockPlug to " + pAutoUnlockPlug + " >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
                 reject();
@@ -227,18 +232,24 @@ class VwWeConnect {
                 reject();
                 return;
             }
-            this.config.targetSOC = pTargetSOC;
-            this.config.chargeCurrent = pChargeCurrent;
+            if (pTargetSOC >= 50 && pTargetSOC <= 100) { 
+                this.config.targetSOC = pTargetSOC; 
+            }
+            if (pChargeCurrent == "maximum" || pChargeCurrent == "reduced") {
+                this.config.chargeCurrent = pChargeCurrent;
+            }
+            this.config.autoUnlockPlug = pAutoUnlockPlug;
 
             this.setIdRemote(this.currSession.vin, "charging", "settings")
                 .then(() => {
                     this.log.info("Target SOC set to " + this.config.targetSOC + "%.");
                     this.log.info("Charging current set to " + this.config.chargeCurrent + ".");
+                    this.log.info("Auto unlock plug when finished charging set to " + this.config.autoUnlockPlug + ".");
                     resolve();
                     return;
                 })
                 .catch(() => {
-                    this.log.error("setting SOC and charge current failed");
+                    this.log.error("setting SOC, charge current, auto unlock plug failed");
                     reject();
                     return;
                 });
@@ -341,6 +352,43 @@ class VwWeConnect {
         });
     }
 
+    setClimatisationSettings(pSetting, pValue) { 
+        return new Promise(async (resolve, reject) => {
+            this.log.debug("setClimatisationSettings with " + pSetting + " " + pValue + " >>");
+            if (!this.finishedReading()) {
+                this.log.info("Reading necessary data not finished yet. Please try again.");
+                reject();
+                return;
+            }
+            if (!this.vinArray.includes(this.currSession.vin)) {
+                this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
+                reject();
+                return;
+            }
+            
+            switch (pSetting) {
+                case "climatizationAtUnlock": this.config.climatizationAtUnlock = pValue; break;
+                case "climatisationWindowHeating": this.config.climatisationWindowHeating = pValue; break;
+                case "climatisationFrontLeft": this.config.climatisationFrontLeft = pValue; break;
+                case "climatisationFrontRight": this.config.climatisationFrontRight = pValue; break;
+                default: break;
+            }
+       
+            this.setIdRemote(this.currSession.vin, "climatisation", "settings", "")
+                .then(() => {
+                    this.log.debug("setClimatisationSettings successful");
+                    resolve();
+                    return;
+                })
+                .catch(() => {
+                    this.log.error("setClimatisationSettings failed");
+                    reject();
+                    return;
+                });
+            this.log.debug("setClimatisationSettings <<");
+        });
+    }
+    
     setClimatisation(pTempC) {
         return new Promise(async (resolve, reject) => {
             this.log.debug("setClimatisation with " + pTempC + "°C >>");
@@ -1629,6 +1677,20 @@ class VwWeConnect {
                     reject();
                     return;
                 }
+                
+                if (key == "climatizationAtUnlock") {
+                        climateStates[keyName] = this.config.climatizationAtUnlock;
+                }
+                if (key == "windowHeatingEnabled") {
+                        climateStates[keyName] = this.config.climatisationWindowHeating;
+                }
+                if (key == "zoneFrontLeftEnabled") {
+                        climateStates[keyName] = this.config.climatisationFrontLeft;
+                }
+                if (key == "zoneFrontRightEnabled") {
+                        climateStates[keyName] = this.config.climatisationFrontRight;
+                }
+                
                 if (key.indexOf("Timestamp") === -1) {
                     body[key] = climateStates[keyName];
                 }
@@ -1652,6 +1714,9 @@ class VwWeConnect {
                     if (key == "maxChargeCurrentAC") {
                         chargingStates[keyName] = this.config.chargeCurrent;
                     }
+                }
+                if (key == "autoUnlockPlugWhenCharged") {
+                        chargingStates[keyName] = this.config.autoUnlockPlug ? "permanent" : "off";
                 }
                 else {
                     //this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
