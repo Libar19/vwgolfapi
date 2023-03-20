@@ -1643,7 +1643,7 @@ class VwWeConnect {
             const allIds = Object.keys(chargingStates);
             allIds.forEach((keyName) => {
                 const key = keyName.split(".").splice(-1)[0];
-                if (this.config.targetSOC > 0 && this.config.targetSOC <= 100) {
+                if (this.config.targetSOC >= 50 && this.config.targetSOC <= 100) {
                     if (key == "targetSOC_pct") {
                         chargingStates[keyName] = this.config.targetSOC;
                     }
