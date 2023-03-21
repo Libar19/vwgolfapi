@@ -69,10 +69,26 @@ Start the air-conditioning.
 #### vwConn.setClimatisation(temperature)
 Set climatisation temperature.
 
+#### vwConn.setClimatisationSetting(setting, value)
+setting can be: 
+```climatizationAtUnlock```
+```climatisationWindowHeating```
+```climatisationWindowHeating```
+```climatisationFrontLeft```
+```climatisationFrontLeft```
+```climatisationFrontRight```
+```climatisationFrontRight```. Set to true or false.
+
 #### vwConn.stopClimatisation()
 Stop the air-conditioning.
 
-#### vwConn.setChargingSettings(targetSOC, maxChargeCurrent)
+#### vwConn.setChargingSetting(setting, value)
+setting can be:
+```targetSOC```: Target battery level in percent.
+```chargeCurrent```: "maximum" of "reduced".
+```autoUnlockPlug```: true or false, to automatically unlock plug when finished charging.
+
+#### vwConn.setChargingSettings(targetSOC, maxChargeCurrent) -> soon to be deprecated in favor of vwConn.setChargingSetting
 Change the target SOC and the maximum charge current ("maximum" or "reduced") for charging.
 
 #### vwConn.startCharging()
