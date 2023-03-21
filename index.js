@@ -219,9 +219,61 @@ class VwWeConnect {
         });
     }
 
-    setChargingSettings(pTargetSOC, pChargeCurrent, pAutoUnlockPlug = false) {
+    setChargingSetting(setting, value) {
         return new Promise(async (resolve, reject) => {
-            this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "%, chargeCurrent to " + pChargeCurrent + "and autoUnlockPlug to " + pAutoUnlockPlug + " >>");
+            this.log.debug("setChargerSetting " + setting + " to " + value  + " >>");
+            if (!this.finishedReading()) {
+                this.log.info("Reading necessary data not finished yet. Please try again.");
+                reject();
+                return;
+            }
+            if (!this.vinArray.includes(this.currSession.vin)) {
+                this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
+                reject();
+                return;
+            }
+            
+            switch (setting) {
+                case "targetSOC":
+                    if (value >= 50 && value <= 100) { 
+                        this.config.targetSOC = value; 
+                    } else {
+                        this.log.debug("setChargerSetting " + setting + " value " + value + " out of bounds >>");
+                    }
+                    break;
+                case "chargeCurrent": 
+                    if (value == "maximum" || value == "reduced") {
+                        this.config.chargeCurrent = value;
+                    } else {
+                        this.log.debug("setChargerSetting " + setting + " incorrect value " + value + "  >>");
+                    }
+                    break;
+                case "autoUnlockPlug":
+                    this.config.autoUnlockPlug = pAutoUnlockPlug;
+                    break;
+                default:
+                    this.log.debug("setChargerSetting " + setting + " not implemented"  + " >>");
+                    break;
+            }
+          
+            this.setIdRemote(this.currSession.vin, "charging", "settings")
+                .then(() => {
+                    this.log.info("setIdRemote succeeded");
+                    resolve();
+                    return;
+                })
+                .catch(() => {
+                    this.log.error("setIdRemote failed");
+                    reject();
+                    return;
+                });
+            this.log.debug("setChargerSettings <<");
+        });
+    }
+    
+    setChargingSettings(pTargetSOC, pChargeCurrent) {
+        return new Promise(async (resolve, reject) => {
+            this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "%, chargeCurrent to " + pChargeCurrent + " >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
                 reject();
@@ -238,18 +290,16 @@ class VwWeConnect {
             if (pChargeCurrent == "maximum" || pChargeCurrent == "reduced") {
                 this.config.chargeCurrent = pChargeCurrent;
             }
-            this.config.autoUnlockPlug = pAutoUnlockPlug;
 
             this.setIdRemote(this.currSession.vin, "charging", "settings")
                 .then(() => {
                     this.log.info("Target SOC set to " + this.config.targetSOC + "%.");
                     this.log.info("Charging current set to " + this.config.chargeCurrent + ".");
-                    this.log.info("Auto unlock plug when finished charging set to " + this.config.autoUnlockPlug + ".");
                     resolve();
                     return;
                 })
                 .catch(() => {
-                    this.log.error("setting SOC, charge current, auto unlock plug failed");
+                    this.log.error("setting SOC and charge current failed");
                     reject();
                     return;
                 });
