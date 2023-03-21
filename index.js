@@ -402,9 +402,9 @@ class VwWeConnect {
         });
     }
 
-    setClimatisationSettings(pSetting, pValue) { 
+    setClimatisationSetting(pSetting, pValue) { 
         return new Promise(async (resolve, reject) => {
-            this.log.debug("setClimatisationSettings with " + pSetting + " " + pValue + " >>");
+            this.log.debug("setClimatisationSetting with " + pSetting + " " + pValue + " >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
                 reject();
@@ -426,16 +426,16 @@ class VwWeConnect {
        
             this.setIdRemote(this.currSession.vin, "climatisation", "settings", "")
                 .then(() => {
-                    this.log.debug("setClimatisationSettings successful");
+                    this.log.debug("setClimatisationSetting successful");
                     resolve();
                     return;
                 })
                 .catch(() => {
-                    this.log.error("setClimatisationSettings failed");
+                    this.log.error("setClimatisationSetting failed");
                     reject();
                     return;
                 });
-            this.log.debug("setClimatisationSettings <<");
+            this.log.debug("setClimatisationSetting <<");
         });
     }
     
