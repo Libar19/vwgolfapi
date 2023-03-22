@@ -98,7 +98,6 @@ Start charging.
 Stop charging.
 
 #### vwConn.setDestination(destination)
-Seems to be broken for the moment, needs more checking.
 Sends a destination to the navigation system. 'destination' is a JS object with the following structure.
 ```
 {
