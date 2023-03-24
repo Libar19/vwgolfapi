@@ -1528,12 +1528,12 @@ class VwWeConnect {
 
         try {
             // parking
-            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) {
-                module.exports.idStatusEmitter.emit('parked', this.idData.parking.data);
+            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); }
+            if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
+            if (this.idData.parking.data.carIsParked && (this.idData.access.accessStatus.value.overallStatus != "safe") && (!this.idDataOld.parking.data.carIsParked || (this.idDataOld.access.accessStatus.value.overallStatus == "safe"))) {
                 this.checkSafeFlag(this.config.checkSafeStatusTimeout);
             }
-            if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
-
+           
             // charging
             if ((this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") || (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idData.charging.chargingSettings.value.targetSOC_pct == this.idData.charging.batteryStatus.value.currentSOC_pct)) && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
@@ -1598,12 +1598,17 @@ class VwWeConnect {
                         return;
                     }
                     this.log.debug("getIdStatus: " + JSON.stringify(body));
+
+                    if (typeof (this.idData) != "undefined") {
+                        this.idDataOld = this.idData;
+                    }
+
                     this.idData = body;
+
                     if (typeof (this.idData) != "undefined") {
                         if (!this.boolFinishIdData) {
                             this.populateConfig();
                         }
-                        this.idDataOld = this.idData;
                     }
                    
                     if (typeof (this.idParkingPosition) != "undefined") {
