@@ -1584,7 +1584,7 @@ class VwWeConnect {
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "heating" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "heating") { module.exports.idStatusEmitter.emit('climatisationHeatingStarted'); }
             if (this.idData.climatisation.climatisationSettings.value.targetTemperature_C != this.idDataOld.climatisation.climatisationSettings.value.targetTemperature_C) { module.exports.idStatusEmitter.emit('climatisationTemperatureUpdated'); }
             if (this.idData.climatisation.climatisationSettings.value.climatizationAtUnlock != this.idDataOld.climatisation.climatisationSettings.value.climatizationAtUnlock) { module.exports.idStatusEmitter.emit('climatisationAtUnlockUpdated'); }
-            if (this.idData.climatisation.climatisationSettings.value.windowHeatingEnabled != this.idDataOld.climatisation.climatisationSettings.value.windowHeatingEnabled) { module.exports.idStatusEmitter.emit('windowsHeatingUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.windowHeatingEnabled != this.idDataOld.climatisation.climatisationSettings.value.windowHeatingEnabled) { module.exports.idStatusEmitter.emit('windowHeatingUpdated'); }
             if (this.idData.climatisation.climatisationSettings.value.zoneFrontLeftEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontLeftEnabled) { module.exports.idStatusEmitter.emit('zoneFrontLeftUpdated'); }
             if (this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontRightEnabled) { module.exports.idStatusEmitter.emit('zoneFrontRightUpdated'); }
 
