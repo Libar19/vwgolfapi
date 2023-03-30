@@ -82,6 +82,7 @@ class VwWeConnect {
         climatisationWindowHeating: true,
         climatisationFrontLeft: true,
         climatisationFrontRight: false,
+        pendingRequests = 0;
         historyLimit: 100,
         chargerOnly: false
     }
@@ -1557,6 +1558,9 @@ class VwWeConnect {
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
+            if (this.idData.charging.chargingSettings.value.targetSOC_pct != this.idDataOld.charging.chargingSettings.value.targetSOC_pct) { module.exports.idStatusEmitter.emit('targetSOCupdated'); }
+            if (this.idData.charging.chargingSettings.value.maxChargeCurrentAC != this.idDataOld.charging.chargingSettings.value.maxChargeCurrentAC) { module.exports.idStatusEmitter.emit('reducedACupdated'); }
+            if (this.idData.charging.chargingSettings.value.autoUnlockPlugWhenCharged != this.idDataOld.charging.chargingSettings.value.autoUnlockPlugWhenCharged) { module.exports.idStatusEmitter.emit('autoUnlockPlugUpdated'); }
 
             // climatisation
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
@@ -1564,7 +1568,10 @@ class VwWeConnect {
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "cooling" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "cooling") { module.exports.idStatusEmitter.emit('climatisationCoolingStarted'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "heating" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "heating") { module.exports.idStatusEmitter.emit('climatisationHeatingStarted'); }
             if (this.idData.climatisation.climatisationSettings.value.targetTemperature_C != this.idDataOld.climatisation.climatisationSettings.value.targetTemperature_C) { module.exports.idStatusEmitter.emit('climatisationTemperatureUpdated'); }
-
+            if (this.idData.climatisation.climatisationSettings.value.climatizationAtUnlock != this.idDataOld.climatisation.climatisationSettings.value.climatizationAtUnlock) { module.exports.idStatusEmitter.emit('climatisationAtUnlockUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.windowHeatingEnabled != this.idDataOld.climatisation.climatisationSettings.value.windowHeatingEnabled) { module.exports.idStatusEmitter.emit('windowsHeatingUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.zoneFrontLeftEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontLeftEnabled) { module.exports.idStatusEmitter.emit('zoneFrontLeftUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontRightEnabled) { module.exports.idStatusEmitter.emit('zoneFrontRightUpdated'); }
 
         } catch (err) {
             this.log.error(err);
@@ -1624,7 +1631,7 @@ class VwWeConnect {
                     this.idData = body;
 
                     if (typeof (this.idData) != "undefined") {
-                        if (!this.boolFinishIdData) {
+                        if (this.pendingRequests == 0) {
                             this.populateConfig();
                         }
                     }
