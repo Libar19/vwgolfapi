@@ -281,7 +281,7 @@ class VwWeConnect {
             this.setIdRemote(this.currSession.vin, "charging", "settings")
                 .then(() => {
                     this.log.info("setIdRemote succeeded");
-                    this.config.pendingRequests--;
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
@@ -321,7 +321,7 @@ class VwWeConnect {
                 .then(() => {
                     this.log.info("Target SOC set to " + this.config.targetSOC + "%.");
                     this.log.info("Charging current set to " + this.config.chargeCurrent + ".");
-                    this.config.pendingRequests--;
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
@@ -456,7 +456,7 @@ class VwWeConnect {
             this.setIdRemote(this.currSession.vin, "climatisation", "settings", "")
                 .then(() => {
                     this.log.debug("setClimatisationSetting successful");
-                    this.config.pendingRequests--;
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
@@ -493,7 +493,7 @@ class VwWeConnect {
             this.setIdRemote(this.currSession.vin, "climatisation", "settings", "")
                 .then(() => {
                     this.log.debug("setClimatisation successful");
-                    this.config.pendingRequests--;
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
