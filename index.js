@@ -10,38 +10,56 @@ const { v4: uuidv4 } = require("uuid");
 const traverse = require("traverse");
 
 module.exports.idStatusEmitter = new EventEmitter();
+module.exports.idLogEmitter = new EventEmitter();
 
 class Log {
-    constructor(logLevel) {
+    constructor(logLevel, external = false) {
         this.logLevel = logLevel;
-        this.debug("Start logging instance");
+        this.logTargetExternal = external;
+        if (this.logTargetExternal) {
+            module.exports.idLogEmitter.emit(this.logLevel, "Start logging instance");
+        } else {
+            this.debug("Start logging instance");
+        }
     }
-
-    setLogLevel(pLogLevel) {
+    setLogLevel(pLogLevel, pExternal = false) {
         this.logLevel = pLogLevel;
+        this.logTargetExternal = pExternal;
     }
-
     debug(pMessage) {
         if (this.logLevel == "DEBUG") {
-            console.log("DEBUG: " + pMessage);
+            if (this.logTargetExternal) {
+            module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+            } else {
+                console.log("DEBUG: " + pMessage);
+            }
         }
     }
-
     error(pMessage) {
         if (this.logLevel != "NONE") {
-            console.log("ERROR: " + pMessage);
+            if (this.logTargetExternal) {
+                module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+            } else {
+                console.log("ERROR: " + pMessage);
+            }
         }
     }
-
     info(pMessage) {
         if (this.logLevel == "DEBUG" || this.logLevel == "INFO") {
-            console.log("INFO:  " + pMessage);
+            if (this.logTargetExternal) {
+                module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+            } else {
+                console.log("INFO:  " + pMessage);
+            }
         }
     }
-
     warn(pMessage) {
         if (this.logLevel == "DEBUG" || this.logLevel == "INFO" || this.logLevel == "WARN") {
-            console.log("WARN: " + pMessage);
+            if (this.logTargetExternal) {
+                module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+            } else {
+                console.log("WARN: " + pMessage);
+            }
         }
     }
 }
