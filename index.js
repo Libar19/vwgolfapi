@@ -1537,6 +1537,27 @@ class VwWeConnect {
             this.log.debug(err);
         });
     }
+    
+    async checkPlugAndPower(timeout) {
+        return new Promise((resolve, reject) => {
+            var counter = 0
+            let checkInterval = setInterval(() => {
+                if (this.idData.charging.plugStatus.value.externalPower == "ready") {
+                    clearInterval(checkInterval);
+                    reject('powerReady');
+                    return;
+                }
+                if (counter++ >= timeout / 2) {
+                    clearInterval(checkInterval);
+                    module.exports.idStatusEmitter.emit('noExternalPower');
+                    resolve();
+                    return;
+                }
+            }, 30 * 1000);
+        }).catch((err) => {
+            this.log.debug(err);
+        });
+    }
 
     runEventEmitters() {
         module.exports.idStatusEmitter.emit('eventRunStarted');
@@ -1557,7 +1578,10 @@ class VwWeConnect {
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
             if (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargingStopped'); }
             if (this.idData.charging.batteryStatus.value.currentSOC_pct != this.idDataOld.charging.batteryStatus.value.currentSOC_pct) { module.exports.idStatusEmitter.emit('currentSOC', this.idData.charging.batteryStatus.value.currentSOC_pct); }
-
+            if (this.idData.charging.plugStatus.value.plugConnectionState == "connected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "disconnected") {
+                this.checkPlugAndPower(this.config.checkSafeStatusTimeout);
+            }
+            
             // climatisation
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState != "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState == "off") { module.exports.idStatusEmitter.emit('climatisationStarted'); }
