@@ -492,8 +492,8 @@ class VwWeConnect {
     }
 
     // logLevel: ERROR, INFO, DEBUG
-    setLogLevel(pLogLevel) {
-        this.log.setLogLevel(pLogLevel);
+    setLogLevel(pLogLevel, pExternal = false) {
+        this.log.setLogLevel(pLogLevel, pExternal);
     }
 
     async getData() {
