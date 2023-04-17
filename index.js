@@ -1523,12 +1523,13 @@ class VwWeConnect {
             let checkInterval = setInterval(() => {
                 if (this.idData.access.accessStatus.value.overallStatus == "safe") {
                     clearInterval(checkInterval);
+                    module.exports.idStatusEmitter.emit('statusNotSafe', false);
                     reject('safe');
                     return;
                 }
                 if (counter++ >= timeout / 2) {
                     clearInterval(checkInterval);
-                    module.exports.idStatusEmitter.emit('statusNotSafe');
+                    module.exports.idStatusEmitter.emit('statusNotSafe', true);
                     resolve();
                     return;
                 }
@@ -1544,12 +1545,13 @@ class VwWeConnect {
             let checkInterval = setInterval(() => {
                 if (this.idData.charging.plugStatus.value.externalPower == "ready") {
                     clearInterval(checkInterval);
+                    module.exports.idStatusEmitter.emit('noExternalPower', false);
                     reject('powerReady');
                     return;
                 }
                 if (counter++ >= timeout / 2) {
                     clearInterval(checkInterval);
-                    module.exports.idStatusEmitter.emit('noExternalPower');
+                    module.exports.idStatusEmitter.emit('noExternalPower', true);
                     resolve();
                     return;
                 }
