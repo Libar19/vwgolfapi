@@ -1590,6 +1590,7 @@ class VwWeConnect {
             if (this.idData.parking.data.carIsParked && (this.idData.access.accessStatus.value.overallStatus != "safe") && (!this.idDataOld.parking.data.carIsParked || (this.idDataOld.access.accessStatus.value.overallStatus == "safe"))) {
                 this.checkSafeFlag(this.config.checkSafeStatusTimeout);
             }
+            if ( (this.idData.access.accessStatus.value.overallStatus == "safe") && (this.idDataOld.access.accessStatus.value.overallStatus != "safe") ) { module.exports.idStatusEmitter.emit('statusNotSafe', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus != "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus == "locked") ) { module.exports.idStatusEmitter.emit('carLocked', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus == "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus != "locked") ) { module.exports.idStatusEmitter.emit('carLocked', true); }
             
