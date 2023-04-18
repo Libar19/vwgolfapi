@@ -1762,7 +1762,7 @@ class VwWeConnect {
 
                     try {
                         const adapter = this;
-                        traverse(body.data).forEach(function (value) {
+                        traverse(this.idParkingPosition).forEach(function (value) {
                             if (this.path.length > 0 && this.isLeaf) {
                                 const modPath = this.path;
                                 this.path.forEach((pathElement, pathIndex) => {
