@@ -255,6 +255,7 @@ class VwWeConnect {
             switch (setting) {
                 case "targetSOC":
                     if (value >= 50 && value <= 100) {
+                        this.config.pendingRequests++;
                         this.config.targetSOC = value;
                     } else {
                         this.log.debug("setChargerSetting " + setting + " value " + value + " out of bounds >>");
@@ -262,12 +263,14 @@ class VwWeConnect {
                     break;
                 case "chargeCurrent":
                     if (value == "maximum" || value == "reduced") {
+                        this.config.pendingRequests++;
                         this.config.chargeCurrent = value;
                     } else {
                         this.log.debug("setChargerSetting " + setting + " incorrect value " + value + "  >>");
                     }
                     break;
                 case "autoUnlockPlug":
+                    this.config.pendingRequests++;
                     this.config.autoUnlockPlug = value;
                     break;
                 default:
@@ -278,11 +281,13 @@ class VwWeConnect {
             this.setIdRemote(this.currSession.vin, "charging", "settings")
                 .then(() => {
                     this.log.info("setIdRemote succeeded");
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
                 .catch(() => {
                     this.log.error("setIdRemote failed");
+                    this.config.pendingRequests = 0;
                     reject();
                     return;
                 });
@@ -304,9 +309,11 @@ class VwWeConnect {
                 return;
             }
             if (pTargetSOC >= 50 && pTargetSOC <= 100) {
+                this.config.pendingRequests++;
                 this.config.targetSOC = pTargetSOC;
             }
             if (pChargeCurrent == "maximum" || pChargeCurrent == "reduced") {
+                this.config.pendingRequests++;
                 this.config.chargeCurrent = pChargeCurrent;
             }
 
@@ -314,11 +321,13 @@ class VwWeConnect {
                 .then(() => {
                     this.log.info("Target SOC set to " + this.config.targetSOC + "%.");
                     this.log.info("Charging current set to " + this.config.chargeCurrent + ".");
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
                 .catch(() => {
                     this.log.error("setting SOC and charge current failed");
+                    this.config.pendingRequests = 0;
                     reject();
                     return;
                 });
@@ -435,6 +444,7 @@ class VwWeConnect {
                 return;
             }
 
+            this.config.pendingRequests++;
             switch (pSetting) {
                 case "climatizationAtUnlock": this.config.climatizationAtUnlock = pValue; break;
                 case "climatisationWindowHeating": this.config.climatisationWindowHeating = pValue; break;
@@ -446,11 +456,13 @@ class VwWeConnect {
             this.setIdRemote(this.currSession.vin, "climatisation", "settings", "")
                 .then(() => {
                     this.log.debug("setClimatisationSetting successful");
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
                 .catch(() => {
                     this.log.error("setClimatisationSetting failed");
+                    this.config.pendingRequests = 0;
                     reject();
                     return;
                 });
@@ -475,16 +487,19 @@ class VwWeConnect {
                 this.log.info("Invalid temperature, setting 20°C as default");
                 pTempC = 20;
             }
+            this.config.pendingRequests++;
             this.config.targetTempC = pTempC;
 
             this.setIdRemote(this.currSession.vin, "climatisation", "settings", "")
                 .then(() => {
                     this.log.debug("setClimatisation successful");
+                    this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
                     resolve();
                     return;
                 })
                 .catch(() => {
                     this.log.error("setClimatisation failed");
+                    this.config.pendingRequests = 0;
                     reject();
                     return;
                 });
@@ -1588,6 +1603,9 @@ class VwWeConnect {
             if (this.idData.charging.plugStatus.value.plugConnectionState == "connected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "disconnected") {
                 this.checkPlugAndPower(this.config.checkSafeStatusTimeout);
             }
+            if (this.idData.charging.chargingSettings.value.targetSOC_pct != this.idDataOld.charging.chargingSettings.value.targetSOC_pct) { module.exports.idStatusEmitter.emit('targetSOCupdated'); }
+            if (this.idData.charging.chargingSettings.value.maxChargeCurrentAC != this.idDataOld.charging.chargingSettings.value.maxChargeCurrentAC) { module.exports.idStatusEmitter.emit('reducedACupdated'); }
+            if (this.idData.charging.chargingSettings.value.autoUnlockPlugWhenCharged != this.idDataOld.charging.chargingSettings.value.autoUnlockPlugWhenCharged) { module.exports.idStatusEmitter.emit('autoUnlockPlugUpdated'); }
             
             // climatisation
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
@@ -1595,7 +1613,10 @@ class VwWeConnect {
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "cooling" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "cooling") { module.exports.idStatusEmitter.emit('climatisationCoolingStarted'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "heating" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "heating") { module.exports.idStatusEmitter.emit('climatisationHeatingStarted'); }
             if (this.idData.climatisation.climatisationSettings.value.targetTemperature_C != this.idDataOld.climatisation.climatisationSettings.value.targetTemperature_C) { module.exports.idStatusEmitter.emit('climatisationTemperatureUpdated'); }
-
+            if (this.idData.climatisation.climatisationSettings.value.climatizationAtUnlock != this.idDataOld.climatisation.climatisationSettings.value.climatizationAtUnlock) { module.exports.idStatusEmitter.emit('climatisationAtUnlockUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.windowHeatingEnabled != this.idDataOld.climatisation.climatisationSettings.value.windowHeatingEnabled) { module.exports.idStatusEmitter.emit('windowHeatingUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.zoneFrontLeftEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontLeftEnabled) { module.exports.idStatusEmitter.emit('zoneFrontLeftUpdated'); }
+            if (this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontRightEnabled) { module.exports.idStatusEmitter.emit('zoneFrontRightUpdated'); }
 
         } catch (err) {
             this.log.error(err);
@@ -1655,7 +1676,7 @@ class VwWeConnect {
                     this.idData = body;
 
                     if (typeof (this.idData) != "undefined") {
-                        if (!this.boolFinishIdData) {
+                        if (this.pendingRequests == 0) {
                             this.populateConfig();
                         }
                     }
@@ -1824,6 +1845,7 @@ class VwWeConnect {
                 body["climatisationWithoutExternalPower"] = true;
 
                 // body = JSON.stringify(body);
+                this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
             }
             if (action === "charging" && value === "settings") {
                 const chargingStates = this.idData.charging.chargingSettings.value; // get this from the internal object filled by getData()
@@ -1853,7 +1875,7 @@ class VwWeConnect {
                         body[key] = chargingStates[keyName];
                     }
                 });
-
+                this.config.pendingRequests = Math.max(this.config.pendingRequests - 1, 0);
             }
             let method = "POST";
             if (value === "settings" || action === "destinations") {
