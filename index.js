@@ -82,6 +82,7 @@ class VwWeConnect {
         climatisationWindowHeating: true,
         climatisationFrontLeft: true,
         climatisationFrontRight: false,
+        pendingRequests: 0,
         historyLimit: 100,
         chargerOnly: false
     }
