@@ -1588,6 +1588,8 @@ class VwWeConnect {
             if (this.idData.parking.data.carIsParked != this.idDataOld.parking.data.carIsParked) { 
                 if (this.idData.parking.data.carIsParked) {
                     module.exports.idStatusEmitter.emit('positionUpdate', this.idData.parking.data);
+                } else {
+                    module.exports.idStatusEmitter.emit('positionUnknown');
                 }
                 module.exports.idStatusEmitter.emit('parked', this.idData.parking.data.carIsParked);
                 module.exports.idStatusEmitter.emit('notParked', !this.idData.parking.data.carIsParked);
