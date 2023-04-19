@@ -1585,8 +1585,13 @@ class VwWeConnect {
 
         try {
             // parking
-            if (this.idData.parking.data.carIsParked && !this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('parked', this.idData.parking.data); }
-            if (!this.idData.parking.data.carIsParked && this.idDataOld.parking.data.carIsParked) { module.exports.idStatusEmitter.emit('notParked'); }
+            if (this.idData.parking.data.carIsParked != this.idDataOld.parking.data.carIsParked) { 
+                if (this.idData.parking.data.carIsParked) {
+                    module.exports.idStatusEmitter.emit('positionUpdate', this.idData.parking.data);
+                }
+                module.exports.idStatusEmitter.emit('parked', this.idData.parking.data.carIsParked);
+                module.exports.idStatusEmitter.emit('notParked', !this.idData.parking.data.carIsParked);
+            }
             if (this.idData.parking.data.carIsParked && (this.idData.access.accessStatus.value.overallStatus != "safe") && (!this.idDataOld.parking.data.carIsParked || (this.idDataOld.access.accessStatus.value.overallStatus == "safe"))) {
                 this.checkSafeFlag(this.config.checkSafeStatusTimeout);
             }
