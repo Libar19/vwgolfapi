@@ -82,6 +82,8 @@ class VwWeConnect {
         climatisationWindowHeating: true,
         climatisationFrontLeft: true,
         climatisationFrontRight: false,
+        unSafe: false,
+        noExternalPower: false,
         pendingRequests: 0,
         historyLimit: 100,
         chargerOnly: false
@@ -1539,12 +1541,14 @@ class VwWeConnect {
             let checkInterval = setInterval(() => {
                 if (this.idData.access.accessStatus.value.overallStatus == "safe") {
                     clearInterval(checkInterval);
+                    this.config.unSafe = false;
                     module.exports.idStatusEmitter.emit('statusNotSafe', false);
                     reject('safe');
                     return;
                 }
                 if (counter++ >= timeout / 2) {
                     clearInterval(checkInterval);
+                    this.config.unSafe = true;
                     module.exports.idStatusEmitter.emit('statusNotSafe', true);
                     resolve();
                     return;
@@ -1561,12 +1565,14 @@ class VwWeConnect {
             let checkInterval = setInterval(() => {
                 if (this.idData.charging.plugStatus.value.externalPower == "ready") {
                     clearInterval(checkInterval);
+                    this.config.noExternalPower = false;
                     module.exports.idStatusEmitter.emit('noExternalPower', false);
                     reject('powerReady');
                     return;
                 }
                 if (counter++ >= timeout / 2) {
                     clearInterval(checkInterval);
+                    this.config.noExternalPower = true;
                     module.exports.idStatusEmitter.emit('noExternalPower', true);
                     resolve();
                     return;
@@ -1596,7 +1602,10 @@ class VwWeConnect {
             }
             if (this.idData.parking.data.carIsParked && (this.idData.access.accessStatus.value.overallStatus != "safe") && (!this.idDataOld.parking.data.carIsParked || (this.idDataOld.access.accessStatus.value.overallStatus == "safe"))) {
                 this.checkSafeFlag(this.config.checkSafeStatusTimeout);
+            } else {
+                this.config.unSafe = false;
             }
+            
             if ( (this.idData.access.accessStatus.value.overallStatus == "safe") && (this.idDataOld.access.accessStatus.value.overallStatus != "safe") ) { module.exports.idStatusEmitter.emit('statusNotSafe', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus != "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus == "locked") ) { module.exports.idStatusEmitter.emit('carLocked', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus == "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus != "locked") ) { module.exports.idStatusEmitter.emit('carLocked', true); }
@@ -1610,7 +1619,10 @@ class VwWeConnect {
             if (this.idData.charging.batteryStatus.value.cruisingRangeElectric_km != this.idDataOld.charging.batteryStatus.value.cruisingRangeElectric_km) { module.exports.idStatusEmitter.emit('remainingRange', this.idData.charging.batteryStatus.value.cruisingRangeElectric_km); }
             if (this.idData.charging.plugStatus.value.plugConnectionState == "connected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "disconnected") {
                 this.checkPlugAndPower(this.config.checkSafeStatusTimeout);
+            } else {
+                this.config.noExternalPower = false;
             }
+            
             if (this.idData.charging.chargingSettings.value.targetSOC_pct != this.idDataOld.charging.chargingSettings.value.targetSOC_pct) { module.exports.idStatusEmitter.emit('targetSOCupdated'); }
             if (this.idData.charging.chargingSettings.value.maxChargeCurrentAC != this.idDataOld.charging.chargingSettings.value.maxChargeCurrentAC) { module.exports.idStatusEmitter.emit('reducedACupdated'); }
             if (this.idData.charging.chargingSettings.value.autoUnlockPlugWhenCharged != this.idDataOld.charging.chargingSettings.value.autoUnlockPlugWhenCharged) { module.exports.idStatusEmitter.emit('autoUnlockPlugUpdated'); }
@@ -1642,7 +1654,7 @@ class VwWeConnect {
         this.config.climatisationWindowHeating = this.idData.climatisation.climatisationSettings.value.windowHeatingEnabled;
         this.config.climatisationFrontLeft = this.idData.climatisation.climatisationSettings.value.zoneFrontLeftEnabled;
         this.config.climatisationFrontRight = this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled;
-     
+        
         this.log.debug("END populateConfig");
 
     }
