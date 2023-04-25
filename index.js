@@ -1602,11 +1602,13 @@ class VwWeConnect {
             }
             if (this.idData.parking.data.carIsParked && (this.idData.access.accessStatus.value.overallStatus != "safe") && (!this.idDataOld.parking.data.carIsParked || (this.idDataOld.access.accessStatus.value.overallStatus == "safe"))) {
                 this.checkSafeFlag(this.config.checkSafeStatusTimeout);
-            } else {
+            } 
+            
+            if ( (this.idData.access.accessStatus.value.overallStatus == "safe") && (this.idDataOld.access.accessStatus.value.overallStatus != "safe") ) { 
+                module.exports.idStatusEmitter.emit('statusNotSafe', false); 
                 this.config.unSafe = false;
             }
             
-            if ( (this.idData.access.accessStatus.value.overallStatus == "safe") && (this.idDataOld.access.accessStatus.value.overallStatus != "safe") ) { module.exports.idStatusEmitter.emit('statusNotSafe', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus != "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus == "locked") ) { module.exports.idStatusEmitter.emit('carLocked', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus == "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus != "locked") ) { module.exports.idStatusEmitter.emit('carLocked', true); }
             
@@ -1619,7 +1621,10 @@ class VwWeConnect {
             if (this.idData.charging.batteryStatus.value.cruisingRangeElectric_km != this.idDataOld.charging.batteryStatus.value.cruisingRangeElectric_km) { module.exports.idStatusEmitter.emit('remainingRange', this.idData.charging.batteryStatus.value.cruisingRangeElectric_km); }
             if (this.idData.charging.plugStatus.value.plugConnectionState == "connected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "disconnected") {
                 this.checkPlugAndPower(this.config.checkSafeStatusTimeout);
-            } else {
+            } 
+             
+            if (this.idData.charging.plugStatus.value.plugConnectionState == "disconnected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "connected") { 
+                module.exports.idStatusEmitter.emit('noExternalPower', false); 
                 this.config.noExternalPower = false;
             }
             
