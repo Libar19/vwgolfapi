@@ -29,7 +29,7 @@ class Log {
     debug(pMessage) {
         if (this.logLevel == "DEBUG") {
             if (this.logTargetExternal) {
-            module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+            module.exports.idLogEmitter.emit("DEBUG", pMessage);
             } else {
                 console.log("DEBUG: " + pMessage);
             }
@@ -38,7 +38,7 @@ class Log {
     error(pMessage) {
         if (this.logLevel != "NONE") {
             if (this.logTargetExternal) {
-                module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+                module.exports.idLogEmitter.emit("ERROR", pMessage);
             } else {
                 console.log("ERROR: " + pMessage);
             }
@@ -47,7 +47,7 @@ class Log {
     info(pMessage) {
         if (this.logLevel == "DEBUG" || this.logLevel == "INFO") {
             if (this.logTargetExternal) {
-                module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+                module.exports.idLogEmitter.emit("INFO", pMessage);
             } else {
                 console.log("INFO:  " + pMessage);
             }
@@ -56,7 +56,7 @@ class Log {
     warn(pMessage) {
         if (this.logLevel == "DEBUG" || this.logLevel == "INFO" || this.logLevel == "WARN") {
             if (this.logTargetExternal) {
-                module.exports.idLogEmitter.emit(this.logLevel, pMessage);
+                module.exports.idLogEmitter.emit("WARN", pMessage);
             } else {
                 console.log("WARN: " + pMessage);
             }
