@@ -1128,7 +1128,7 @@ class VwWeConnect {
         this.xappversion = "";
         this.xappname = "";
         this.login().catch(() => {
-            this.log.warn("Failled wall charger login");
+            this.log.debug("Failled wall charger login");
         });
         resolve();
         return;
