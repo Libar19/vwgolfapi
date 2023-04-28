@@ -1623,7 +1623,8 @@ class VwWeConnect {
                 this.checkPlugAndPower(this.config.checkSafeStatusTimeout);
             } 
              
-            if (this.idData.charging.plugStatus.value.plugConnectionState == "disconnected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "connected") { 
+            if ( (this.idData.charging.plugStatus.value.plugConnectionState == "disconnected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "connected") ||
+                 (this.idData.charging.plugStatus.value.externalPower == "ready" && this.config.noExternalPower) ) { 
                 module.exports.idStatusEmitter.emit('noExternalPower', false); 
                 this.config.noExternalPower = false;
             }
