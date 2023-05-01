@@ -1563,7 +1563,7 @@ class VwWeConnect {
         return new Promise((resolve, reject) => {
             var counter = 0
             let checkInterval = setInterval(() => {
-                if (this.idData.charging.plugStatus.value.externalPower == "ready") {
+                if (this.idData.charging.plugStatus.value.externalPower == "ready" || this.idData.charging.plugStatus.value.externalPower == "active") {
                     clearInterval(checkInterval);
                     this.config.noExternalPower = false;
                     module.exports.idStatusEmitter.emit('noExternalPower', false);
@@ -1624,7 +1624,7 @@ class VwWeConnect {
             } 
              
             if ( (this.idData.charging.plugStatus.value.plugConnectionState == "disconnected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "connected") ||
-                 (this.idData.charging.plugStatus.value.externalPower == "ready" && this.config.noExternalPower) ) { 
+                 ((this.idData.charging.plugStatus.value.externalPower == "ready" || this.idData.charging.plugStatus.value.externalPower == "active") && this.config.noExternalPower) ) { 
                 module.exports.idStatusEmitter.emit('noExternalPower', false); 
                 this.config.noExternalPower = false;
             }
