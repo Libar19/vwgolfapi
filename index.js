@@ -1646,7 +1646,7 @@ class VwWeConnect {
             if (this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontRightEnabled) { module.exports.idStatusEmitter.emit('zoneFrontRightUpdated'); }
 
             if (this.config.backendError) {
-                this.log.info("Current car state backl in sync with VW backend.");
+                this.log.info("Current car state back in sync with VW backend.");
                 module.exports.idStatusEmitter.emit('backendError', false);
                 this.config.backendError = false;
             }
