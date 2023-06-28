@@ -1647,6 +1647,7 @@ class VwWeConnect {
 
             if (this.config.backendError) {
                 this.log.info("Current car state backl in sync with VW backend.");
+                module.exports.idStatusEmitter.emit('backendError', false);
                 this.config.backendError = false;
             }
 
@@ -1654,6 +1655,7 @@ class VwWeConnect {
             if (!this.config.backendError) {
                 this.log.error("Current car state not (correctly) received from VW backend.");
                 this.log.debug(err);
+                module.exports.idStatusEmitter.emit('backendError', true);
                 this.config.backendError = true;
             }
         }
