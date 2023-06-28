@@ -87,7 +87,7 @@ class VwWeConnect {
         pendingRequests: 0,
         historyLimit: 100,
         chargerOnly: false,
-        errorReadingBackend: false
+        backendError: false
     }
 
     currSession = {
@@ -1645,16 +1645,16 @@ class VwWeConnect {
             if (this.idData.climatisation.climatisationSettings.value.zoneFrontLeftEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontLeftEnabled) { module.exports.idStatusEmitter.emit('zoneFrontLeftUpdated'); }
             if (this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled != this.idDataOld.climatisation.climatisationSettings.value.zoneFrontRightEnabled) { module.exports.idStatusEmitter.emit('zoneFrontRightUpdated'); }
 
-            if (this.config.errorReadingBackend) {
+            if (this.config.backendError) {
                 this.log.info("Current car state backl in sync with VW backend.");
-                this.config.errorReadingBackend = false;
+                this.config.backendError = false;
             }
 
         } catch (err) {
-            if (!this.config.errorReadingBackend) {
+            if (!this.config.backendError) {
                 this.log.error("Current car state not (correctly) received from VW backend.");
                 this.log.debug(err);
-                this.config.errorReadingBackend = true;
+                this.config.backendError = true;
             }
         }
     }
