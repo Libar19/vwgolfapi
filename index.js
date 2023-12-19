@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const { Crypto } = require("@peculiar/webcrypto");
 const { v4: uuidv4 } = require("uuid");
 const traverse = require("traverse");
+const express = require('express');
 
 module.exports.idStatusEmitter = new EventEmitter();
 module.exports.idLogEmitter = new EventEmitter();
@@ -513,6 +514,17 @@ class VwWeConnect {
     // logLevel: ERROR, INFO, DEBUG
     setLogLevel(pLogLevel, pExternal = false) {
         this.log.setLogLevel(pLogLevel, pExternal);
+    }
+
+    enableApi(port) {
+        const app = express();
+        app.get('/status', (req, res) => {
+            res.json(this.idData);
+        });
+
+        app.listen(port, () => {
+            this.log.info(`API server is running on port ${port}`);
+        });
     }
 
     async getData() {
