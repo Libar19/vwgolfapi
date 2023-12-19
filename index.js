@@ -519,7 +519,11 @@ class VwWeConnect {
     enableApi(port) {
         const app = express();
         app.get('/status', (req, res) => {
-            res.json(this.idData);
+            if (typeof(this.idData) != "undefiend") {
+                res.json(this.idData);
+            } else {
+                res.status(200).end();
+            }
         });
 
         app.listen(port, () => {
