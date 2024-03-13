@@ -526,6 +526,18 @@ class VwWeConnect {
             }
         });
 
+        app.get('/setCharging/:on', (req, res) => {
+            const on = (req.params.on == '1') ? true : false;
+
+            if (on) {
+                this.startCharging();
+            } else {
+                this.stopCharging();
+            }
+
+            res.send('ok');
+        });
+        
         app.listen(port, () => {
             this.log.info(`API server is running on port ${port}`);
         });
