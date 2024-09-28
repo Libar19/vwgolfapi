@@ -233,9 +233,9 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("stopCharging failed");
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("stopCharging <<");
@@ -289,10 +289,10 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("setIdRemote failed");
                     this.config.pendingRequests = 0;
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("setChargerSettings <<");
@@ -329,10 +329,10 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("setting SOC and charge current failed");
                     this.config.pendingRequests = 0;
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("setChargerSettings <<");
@@ -359,9 +359,9 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("startCharging failed");
-                    reject();
+                    reject(error);
                     return;
                 });
 
@@ -378,9 +378,9 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("stopClimatisation failed");
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("stopClimatisation <<");
@@ -396,9 +396,9 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("setDestination failed");
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("setDestination <<");
@@ -425,9 +425,9 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("startClimatisation failed");
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("startClimatisation <<");
@@ -464,10 +464,10 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("setClimatisationSetting failed");
                     this.config.pendingRequests = 0;
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("setClimatisationSetting <<");
@@ -501,10 +501,10 @@ class VwWeConnect {
                     resolve();
                     return;
                 })
-                .catch(() => {
+                .catch((error) => {
                     this.log.error("setClimatisation failed");
                     this.config.pendingRequests = 0;
-                    reject();
+                    reject(error);
                     return;
                 });
             this.log.debug("setClimatisation <<");
@@ -519,25 +519,13 @@ class VwWeConnect {
     enableApi(port) {
         const app = express();
         app.get('/status', (req, res) => {
-            if (typeof(this.idData) != "undefined") {
+            if (typeof(this.idData) != "undefiend") {
                 res.json(this.idData);
             } else {
                 res.status(200).end();
             }
         });
 
-        app.get('/setCharging/:on', (req, res) => {
-            const on = (req.params.on == '1') ? true : false;
-
-            if (on) {
-                this.startCharging();
-            } else {
-                this.stopCharging();
-            }
-
-            res.send('ok');
-        });
-        
         app.listen(port, () => {
             this.log.info(`API server is running on port ${port}`);
         });
@@ -1221,7 +1209,7 @@ class VwWeConnect {
                     resolve();
                 } catch (err) {
                     this.log.error(err);
-                    reject();
+                    reject(err);
                 }
             }
         );
@@ -1380,14 +1368,18 @@ class VwWeConnect {
                         this.boolFinishVehicles = true;
 
 
-                        body.data.forEach((element) => {
-                            const vin = element.vin;
-                            if (!vin) {
-                                this.log.info("No vin found for:" + JSON.stringify(element));
-                                return;
-                            }
-                            this.vinArray.push(vin);
-                        });
+                        if (Array.isArray(body.data) && body.data.length > 0) {
+                            body.data.forEach((element) => {
+                                const vin = element.vin;
+                                if (!vin) {
+                                    this.log.info("No vin found for:" + JSON.stringify(element));
+                                    return;
+                                }
+                                this.vinArray.push(vin);
+                            });
+                        } else {
+                            this.log.error("No data in server response");
+                        }
                         resolve();
                         return;
 
@@ -1587,7 +1579,7 @@ class VwWeConnect {
             this.log.debug(err);
         });
     }
-    
+
     async checkPlugAndPower(timeout) {
         return new Promise((resolve, reject) => {
             var counter = 0
@@ -1620,7 +1612,7 @@ class VwWeConnect {
 
         try {
             // parking
-            if (this.idData.parking.data.carIsParked != this.idDataOld.parking.data.carIsParked) { 
+            if (this.idData.parking.data.carIsParked != this.idDataOld.parking.data.carIsParked) {
                 if (this.idData.parking.data.carIsParked) {
                     module.exports.idStatusEmitter.emit('positionUpdate', this.idData.parking.data);
                 } else {
@@ -1631,17 +1623,17 @@ class VwWeConnect {
             }
             if (this.idData.parking.data.carIsParked && (this.idData.access.accessStatus.value.overallStatus != "safe") && (!this.idDataOld.parking.data.carIsParked || (this.idDataOld.access.accessStatus.value.overallStatus == "safe"))) {
                 this.checkSafeFlag(this.config.checkSafeStatusTimeout);
-            } 
-            
-            if ( (this.idData.access.accessStatus.value.overallStatus == "safe") && (this.idDataOld.access.accessStatus.value.overallStatus != "safe") ) { 
-                module.exports.idStatusEmitter.emit('statusNotSafe', false); 
+            }
+
+            if ( (this.idData.access.accessStatus.value.overallStatus == "safe") && (this.idDataOld.access.accessStatus.value.overallStatus != "safe") ) {
+                module.exports.idStatusEmitter.emit('statusNotSafe', false);
                 this.config.unSafe = false;
             }
-            
+
             if ( (this.idData.access.accessStatus.value.doorLockStatus != "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus == "locked") ) { module.exports.idStatusEmitter.emit('carLocked', false); }
             if ( (this.idData.access.accessStatus.value.doorLockStatus == "locked") && (this.idDataOld.access.accessStatus.value.doorLockStatus != "locked") ) { module.exports.idStatusEmitter.emit('carLocked', true); }
-            
-           
+
+
             // charging
             if ((this.idData.charging.chargingStatus.value.chargingState.includes("chargePurposeReached") || (this.idData.charging.chargingStatus.value.chargingState != "charging" && this.idData.charging.chargingSettings.value.targetSOC_pct == this.idData.charging.batteryStatus.value.currentSOC_pct)) && this.idDataOld.charging.chargingStatus.value.chargingState == "charging") { module.exports.idStatusEmitter.emit('chargePurposeReached'); }
             if (this.idData.charging.chargingStatus.value.chargingState == "charging" && this.idDataOld.charging.chargingStatus.value.chargingState != "charging") { module.exports.idStatusEmitter.emit('chargingStarted'); }
@@ -1650,18 +1642,18 @@ class VwWeConnect {
             if (this.idData.charging.batteryStatus.value.cruisingRangeElectric_km != this.idDataOld.charging.batteryStatus.value.cruisingRangeElectric_km) { module.exports.idStatusEmitter.emit('remainingRange', this.idData.charging.batteryStatus.value.cruisingRangeElectric_km); }
             if (this.idData.charging.plugStatus.value.plugConnectionState == "connected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "disconnected") {
                 this.checkPlugAndPower(this.config.checkSafeStatusTimeout);
-            } 
-             
+            }
+
             if ( (this.idData.charging.plugStatus.value.plugConnectionState == "disconnected" && this.idDataOld.charging.plugStatus.value.plugConnectionState == "connected") ||
-                 ((this.idData.charging.plugStatus.value.externalPower == "ready" || this.idData.charging.plugStatus.value.externalPower == "active") && this.config.noExternalPower) ) { 
-                module.exports.idStatusEmitter.emit('noExternalPower', false); 
+                 ((this.idData.charging.plugStatus.value.externalPower == "ready" || this.idData.charging.plugStatus.value.externalPower == "active") && this.config.noExternalPower) ) {
+                module.exports.idStatusEmitter.emit('noExternalPower', false);
                 this.config.noExternalPower = false;
             }
-            
+
             if (this.idData.charging.chargingSettings.value.targetSOC_pct != this.idDataOld.charging.chargingSettings.value.targetSOC_pct) { module.exports.idStatusEmitter.emit('targetSOCupdated'); }
             if (this.idData.charging.chargingSettings.value.maxChargeCurrentAC != this.idDataOld.charging.chargingSettings.value.maxChargeCurrentAC) { module.exports.idStatusEmitter.emit('reducedACupdated'); }
             if (this.idData.charging.chargingSettings.value.autoUnlockPlugWhenCharged != this.idDataOld.charging.chargingSettings.value.autoUnlockPlugWhenCharged) { module.exports.idStatusEmitter.emit('autoUnlockPlugUpdated'); }
-            
+
             // climatisation
             if (this.idData.climatisation.climatisationStatus.value.climatisationState == "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState != "off") { module.exports.idStatusEmitter.emit('climatisationStopped'); }
             if (this.idData.climatisation.climatisationStatus.value.climatisationState != "off" && this.idDataOld.climatisation.climatisationStatus.value.climatisationState == "off") { module.exports.idStatusEmitter.emit('climatisationStarted'); }
@@ -1691,7 +1683,7 @@ class VwWeConnect {
 
     populateConfig() {
         this.log.debug("START populateConfig");
-     
+
         this.config.targetTempC = this.idData.climatisation.climatisationSettings.value.targetTemperature_C;
         this.config.targetSOC = this.idData.charging.chargingSettings.value.targetSOC_pct;
         this.config.chargeCurrent = this.idData.charging.chargingSettings.value.maxChargeCurrentAC;
@@ -1700,7 +1692,7 @@ class VwWeConnect {
         this.config.climatisationWindowHeating = this.idData.climatisation.climatisationSettings.value.windowHeatingEnabled;
         this.config.climatisationFrontLeft = this.idData.climatisation.climatisationSettings.value.zoneFrontLeftEnabled;
         this.config.climatisationFrontRight = this.idData.climatisation.climatisationSettings.value.zoneFrontRightEnabled;
-        
+
         this.log.debug("END populateConfig");
 
     }
@@ -1733,7 +1725,7 @@ class VwWeConnect {
                         reject();
                         return;
                     }
-                    this.log.debug("getIdStatus: " + JSON.stringify(body));
+                    //this.log.debug("getIdStatus: " + JSON.stringify(body));
 
                     if (typeof (this.idData) != "undefined") {
                         this.idDataOld = this.idData;
@@ -1746,7 +1738,7 @@ class VwWeConnect {
                             this.populateConfig();
                         }
                     }
-                   
+
                     if (typeof (this.idParkingPosition) != "undefined") {
                         this.idData.parking = {};
                         Object.assign(this.idData.parking, this.idParkingPosition);
@@ -1988,7 +1980,7 @@ class VwWeConnect {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
                         body && this.log.error(JSON.stringify(body));
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -1996,7 +1988,7 @@ class VwWeConnect {
                         resolve();
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
