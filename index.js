@@ -247,12 +247,12 @@ class VwWeConnect {
             this.log.debug("setChargerSetting " + setting + " to " + value + " >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
-                reject();
+                reject(err);
                 return;
             }
             if (!this.vinArray.includes(this.currSession.vin)) {
                 this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
-                reject();
+                reject(err);
                 return;
             }
 
@@ -304,12 +304,12 @@ class VwWeConnect {
             this.log.debug("setChargerSettings TargetSOC to " + pTargetSOC + "%, chargeCurrent to " + pChargeCurrent + " >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
-                reject();
+                reject(err);
                 return;
             }
             if (!this.vinArray.includes(this.currSession.vin)) {
                 this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
-                reject();
+                reject(err);
                 return;
             }
             if (pTargetSOC >= 50 && pTargetSOC <= 100) {
@@ -344,12 +344,12 @@ class VwWeConnect {
             this.log.debug("startCharging >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
-                reject();
+                reject(err);
                 return;
             }
             if (!this.vinArray.includes(this.currSession.vin)) {
                 this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
-                reject();
+                reject(err);
                 return;
             }
 
@@ -410,12 +410,12 @@ class VwWeConnect {
             this.log.debug("startClimatisation with " + this.config.targetTempC + "°C >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
-                reject();
+                reject(err);
                 return;
             }
             if (!this.vinArray.includes(this.currSession.vin)) {
                 this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
-                reject();
+                reject(err);
                 return;
             }
 
@@ -439,12 +439,12 @@ class VwWeConnect {
             this.log.debug("setClimatisationSetting with " + pSetting + " " + pValue + " >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
-                reject();
+                reject(err);
                 return;
             }
             if (!this.vinArray.includes(this.currSession.vin)) {
                 this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
-                reject();
+                reject(err);
                 return;
             }
 
@@ -479,12 +479,12 @@ class VwWeConnect {
             this.log.debug("setClimatisation with " + pTempC + "°C >>");
             if (!this.finishedReading()) {
                 this.log.info("Reading necessary data not finished yet. Please try again.");
-                reject();
+                reject(err);
                 return;
             }
             if (!this.vinArray.includes(this.currSession.vin)) {
                 this.log.error("Unknown VIN, aborting. Use setActiveVin to set a valid VIN.");
-                reject();
+                reject(err);
                 return;
             }
             if (pTempC < 16 || pTempC > 27) {
@@ -596,10 +596,10 @@ class VwWeConnect {
                         this.getVehicles()
                             .then(() => {
                                 this.vinArray.forEach((vin) => {
-                                    this.getIdStatus(vin).catch(() => {
+                                    this.getIdStatus(vin).catch((err) => {
                                         this.log.error("get id status Failed");
                                     });
-                                    this.getIdParkingPosition(vin).catch(() => {
+                                    this.getIdParkingPosition(vin).catch((err) => {
                                         this.log.error("get id parking position Failed");
                                     });
                                 });
@@ -609,15 +609,15 @@ class VwWeConnect {
                                 },
                                     this.config.interval * 60 * 1000);
                             })
-                            .catch(() => {
+                            .catch((err) => {
                                 this.log.error("Get Vehicles Failed");
                             });
                     })
-                    .catch(() => {
+                    .catch((err) => {
                         this.log.error("get personal data Failed");
                     });
             })
-            .catch(() => {
+            .catch((err) => {
                 this.log.error("Login Failed");
             });
 
@@ -649,7 +649,7 @@ class VwWeConnect {
                 state;
 
             if (this.config.type === "id" && this.type !== "Wc") {
-                url = await this.receiveLoginUrl().catch(() => {
+                url = await this.receiveLoginUrl().catch((err) => {
                     this.log.warn("Failed to get login url");
                 });
                 if (!url) {
@@ -698,7 +698,7 @@ class VwWeConnect {
 
                         loginRequest && loginRequest.uri && loginRequest.uri.query && this.log.debug(loginRequest.uri.query.toString());
 
-                        reject();
+                        reject(err);
                         return;
                     }
 
@@ -711,7 +711,7 @@ class VwWeConnect {
                         } else {
                             this.log.error("No Login Form found for type: " + this.type);
                             this.log.debug(JSON.stringify(body));
-                            reject();
+                            reject(err);
                             return;
                         }
                         request.post(
@@ -736,7 +736,7 @@ class VwWeConnect {
                                     err && this.log.error(err);
                                     resp && this.log.error(resp.statusCode.toString());
                                     body && this.log.error(JSON.stringify(body));
-                                    reject();
+                                    reject(err);
                                     return;
                                 }
                                 try {
@@ -757,7 +757,7 @@ class VwWeConnect {
                                     } else {
                                         this.log.error("No Login Form found. Please check your E-Mail in the app.");
                                         this.log.debug(JSON.stringify(body));
-                                        reject();
+                                        reject(err);
                                         return;
                                     }
                                     request.post(
@@ -782,7 +782,7 @@ class VwWeConnect {
                                                 err && this.log.error(err);
                                                 resp && this.log.error(resp.statusCode.toString());
                                                 body && this.log.error(JSON.stringify(body));
-                                                reject();
+                                                reject(err);
                                                 return;
                                             }
 
@@ -840,7 +840,7 @@ class VwWeConnect {
                                                                         err && this.log.error(err);
                                                                         resp && this.log.error(resp.statusCode.toString());
                                                                         body && this.log.error(JSON.stringify(body));
-                                                                        reject();
+                                                                        reject(err);
                                                                         return;
                                                                     }
                                                                     this.log.info("Auto accept succesful. Restart adapter in 10sec");
@@ -852,7 +852,7 @@ class VwWeConnect {
                                                         }
                                                     );
 
-                                                    reject();
+                                                    reject(err);
                                                     return;
                                                 }
                                                 this.config.userid = resp.headers.location.split("&")[2].split("=")[1];
@@ -864,7 +864,7 @@ class VwWeConnect {
                                                         this.log.error("No valid login url, please download the log and visit:");
                                                         this.log.error("http://" + resp.request.host + resp.headers.location);
                                                     }
-                                                    reject();
+                                                    reject(err);
                                                     return;
                                                 }
 
@@ -917,7 +917,7 @@ class VwWeConnect {
                                                                             this.log.debug(JSON.stringify(body));
                                                                         } catch (err) {
                                                                             this.log.error(err);
-                                                                            reject();
+                                                                            reject(err);
                                                                         }
                                                                     }
                                                                 }
@@ -930,19 +930,19 @@ class VwWeConnect {
                                                 err && this.log.error(err);
                                                 this.log.error(err2);
                                                 this.log.error(err2.stack);
-                                                reject();
+                                                reject(err);
                                             }
                                         }
                                     );
                                 } catch (err) {
                                     this.log.error(err);
-                                    reject();
+                                    reject(err);
                                 }
                             }
                         );
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -951,13 +951,13 @@ class VwWeConnect {
 
     updateStatus() {
         this.vinArray.forEach((vin) => {
-            this.getIdStatus(vin).catch(() => {
+            this.getIdStatus(vin).catch((err) => {
                 this.log.error("get id status Failed");
-                this.refreshIDToken().catch(() => { });
+                this.refreshIDToken().catch((err) => { });
             });
-            this.getIdParkingPosition(vin).catch(() => {
+            this.getIdParkingPosition(vin).catch((err) => {
                 this.log.error("get id parking position Failed");
-                this.refreshIDToken().catch(() => { });
+                this.refreshIDToken().catch((err) => { });
             });
             //this.getWcData();
         });
@@ -986,7 +986,7 @@ class VwWeConnect {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
                         body && this.log.error(JSON.stringify(body));
-                        reject();
+                        reject(err);
                         return;
                     }
                     resolve(resp.request.href);
@@ -1075,7 +1075,7 @@ class VwWeConnect {
             "accept-language": "de-de",
         };
         if (this.type === "Wc") {
-            reject();
+            reject(err);
             return;
             method = "GET";
             url = "https://emea.bff.cariad.digital/user-identity/v1/identity/login?redirect_uri=wecharge://authenticated&code=" + jwtauth_code;
@@ -1099,7 +1099,7 @@ class VwWeConnect {
                     err && this.log.error(err);
                     resp && this.log.error(resp.statusCode.toString());
                     body && this.log.error(JSON.stringify(body));
-                    reject();
+                    reject(err);
                     return;
                 }
                 try {
@@ -1108,7 +1108,7 @@ class VwWeConnect {
                     this.getVWToken(tokens, jwtid_token, reject, resolve);
                 } catch (err) {
                     this.log.error(err);
-                    reject();
+                    reject(err);
                 }
             }
         );
@@ -1130,7 +1130,7 @@ class VwWeConnect {
         //configure for wallcharging login
 
         this.refreshTokenInterval = setInterval(() => {
-            this.refreshIDToken().catch(() => { });
+            this.refreshIDToken().catch((err) => { });
         }, 0.9 * 60 * 60 * 1000); // 0.9hours
 
         //this.config.type === "wc"
@@ -1144,7 +1144,7 @@ class VwWeConnect {
         this.responseType = "code id_token token";
         this.xappversion = "";
         this.xappname = "";
-        this.login().catch(() => {
+        this.login().catch((err) => {
             this.log.debug("Failled wall charger login");
         });
         resolve();
@@ -1158,7 +1158,7 @@ class VwWeConnect {
             clearInterval(this.refreshTokenInterval);
         }
         this.refreshTokenInterval = setInterval(() => {
-            this.refreshToken().catch(() => {
+            this.refreshToken().catch((err) => {
                 this.log.error("Refresh Token was not successful");
             });
         }, 0.9 * 60 * 60 * 1000); // 0.9hours
@@ -1202,7 +1202,7 @@ class VwWeConnect {
                         clearInterval(this.vwrefreshTokenInterval);
                     }
                     this.vwrefreshTokenInterval = setInterval(() => {
-                        this.refreshToken(true).catch(() => {
+                        this.refreshToken(true).catch((err) => {
                             this.log.error("Refresh Token was not successful");
                         });
                     }, 0.9 * 60 * 60 * 1000); //0.9hours
@@ -1260,7 +1260,7 @@ class VwWeConnect {
                             this.restart();
                         }, 10 * 60 * 1000);
 
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -1271,11 +1271,11 @@ class VwWeConnect {
                             clearTimeout(this.refreshTokenTimeout());
                             this.refreshTokenTimeout = setTimeout(() => {
                                 this.refreshTokenTimeout = null;
-                                this.refreshToken(isVw).catch(() => {
+                                this.refreshToken(isVw).catch((err) => {
                                     this.log.error("refresh token failed");
                                 });
                             }, 5 * 60 * 1000);
-                            reject();
+                            reject(err);
                             return;
                         }
                         if (isVw) {
@@ -1355,12 +1355,12 @@ class VwWeConnect {
                     if (err || (resp && resp.statusCode >= 400)) {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode);
-                        reject();
+                        reject(err);
                     }
                     try {
                         if (body.errorCode) {
                             this.log.error(JSON.stringify(body));
-                            reject();
+                            reject(err);
                             return;
                         }
                         this.log.debug("getVehicles: " + JSON.stringify(body));
@@ -1387,7 +1387,7 @@ class VwWeConnect {
                         this.log.error(err);
                         this.log.error(err.stack);
                         this.log.error("Not able to find vehicle, did you choose the correct type?");
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -1549,7 +1549,7 @@ class VwWeConnect {
                         resolve(body);
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -1722,7 +1722,7 @@ class VwWeConnect {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode);
 
-                        reject();
+                        reject(err);
                         return;
                     }
                     //this.log.debug("getIdStatus: " + JSON.stringify(body));
@@ -1774,7 +1774,7 @@ class VwWeConnect {
                         resolve();
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -1807,7 +1807,7 @@ class VwWeConnect {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode);
 
-                        reject();
+                        reject(err);
                         return;
                     }
                     this.log.debug("getIdParkingPosition: " + JSON.stringify(body));
@@ -1844,7 +1844,7 @@ class VwWeConnect {
                         resolve();
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -1869,7 +1869,7 @@ class VwWeConnect {
                             climateStates[keyName] = this.config.targetTempC;
                         } else if (this.config.targetTempC != -1) {
                             this.log.error("Cannot set temperature to " + this.config.targetTempC + "°C.");
-                            reject();
+                            reject(err);
                             return;
                         }
                     }
@@ -1926,7 +1926,7 @@ class VwWeConnect {
                     }
                     else {
                         //this.log.error("Cannot set target SOC to " + this.config.targetSOC + "%, and charge current to "+ this.config.chargeCurrent + ".");
-                        //reject();
+                        //reject(err);
                         //return;
                     }
                     if (key.indexOf("Timestamp") === -1) {
@@ -1972,9 +1972,9 @@ class VwWeConnect {
                             err && this.log.error(err);
                             resp && this.log.error(resp.statusCode.toString());
                             body && this.log.error(JSON.stringify(body));
-                            this.refreshIDToken().catch(() => { });
+                            this.refreshIDToken().catch((err) => { });
                             this.log.error("Refresh Token");
-                            reject();
+                            reject(err);
                             return;
                         }
                         err && this.log.error(err);
@@ -2032,7 +2032,7 @@ class VwWeConnect {
                             this.log.error("Restart adapter in 10min");
                             this.restart();
                         }, 10 * 60 * 1000);
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -2041,14 +2041,14 @@ class VwWeConnect {
                         this.config.rtoken = body.refreshToken;
                         if (this.type === "Wc") {
                             //wallcharging relogin no refresh token available
-                            this.login().catch(() => {
+                            this.login().catch((err) => {
                                 this.log.debug("No able to Login in WeCharge");
                             });
                         }
                         resolve();
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -2087,7 +2087,7 @@ class VwWeConnect {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
                         body && this.log.error(JSON.stringify(body));
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -2111,7 +2111,7 @@ class VwWeConnect {
                         resolve();
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -2150,7 +2150,7 @@ class VwWeConnect {
                         }
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -2179,7 +2179,7 @@ class VwWeConnect {
                         resolve();
                     } catch (err) {
                         this.log.error(err);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -2224,7 +2224,7 @@ class VwWeConnect {
                             err && this.log.error(err);
                             resp && this.log.error(resp.statusCode.toString());
                             body && this.log.error(JSON.stringify(body));
-                            reject();
+                            reject(err);
                             return;
                         }
                         try {
@@ -2234,13 +2234,13 @@ class VwWeConnect {
                             this.log.error("Request update failed: " + url);
                             this.log.error(vin);
                             this.log.error(err);
-                            reject();
+                            reject(err);
                         }
                     }
                 );
             } catch (err) {
                 this.log.error(err);
-                reject();
+                reject(err);
             }
         });
     }
@@ -2287,12 +2287,12 @@ class VwWeConnect {
                             if (!this.refreshTokenTimeout) {
                                 this.refreshTokenTimeout = setTimeout(() => {
                                     this.refreshTokenTimeout = null;
-                                    this.refreshToken(true).catch(() => {
+                                    this.refreshToken(true).catch((err) => {
                                         this.log.error("Refresh Token was not successful");
                                     });
                                 }, 10 * 60 * 1000);
                             }
-                            reject();
+                            reject(err);
                             return;
                         } else {
                             if (resp && resp.statusCode === 429) {
@@ -2301,7 +2301,7 @@ class VwWeConnect {
                             err && this.log.error(err);
                             resp && this.log.error(resp.statusCode.toString());
                             body && this.log.error(JSON.stringify(body));
-                            reject();
+                            reject(err);
                             return;
                         }
                     }
@@ -2336,7 +2336,7 @@ class VwWeConnect {
                                 if (!this.refreshTokenTimeout) {
                                     this.refreshTokenTimeout = setTimeout(() => {
                                         this.refreshTokenTimeout = null;
-                                        this.refreshToken(true).catch(() => {
+                                        this.refreshToken(true).catch((err) => {
                                             this.log.error("Refresh Token was not successful");
                                         });
                                     }, 10 * 60 * 1000);
@@ -2345,7 +2345,7 @@ class VwWeConnect {
                                 this.log.debug("Not able to get " + path);
                             }
                             this.log.debug(body);
-                            reject();
+                            reject(err);
                             return;
                         }
 
@@ -2480,12 +2480,12 @@ class VwWeConnect {
                         } else {
                             this.log.error("Cannot find vehicle data " + path);
                             this.log.error(JSON.stringify(body));
-                            reject();
+                            reject(err);
                         }
                     } catch (err) {
                         this.log.error(err);
                         this.log.error(err.stack);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -2598,7 +2598,7 @@ class VwWeConnect {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
                         body && this.log.error(body);
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -2606,10 +2606,10 @@ class VwWeConnect {
                         if (body.indexOf("<error>") !== -1) {
                             this.log.error("Error response try to refresh token " + url);
                             this.log.error(JSON.stringify(body));
-                            this.refreshToken(true).catch(() => {
+                            this.refreshToken(true).catch((err) => {
                                 this.log.error("Refresh Token was not successful");
                             });
-                            reject();
+                            reject(err);
                             return;
                         }
                         resolve();
@@ -2617,7 +2617,7 @@ class VwWeConnect {
                     } catch (err) {
                         this.log.error(err);
                         this.log.error(err.stack);
-                        reject();
+                        reject(err);
                     }
                 }
             );
@@ -2655,7 +2655,7 @@ class VwWeConnect {
                     if (err || (resp && resp.statusCode >= 400)) {
                         err && this.log.error(err);
                         resp && this.log.error(resp.statusCode.toString());
-                        reject();
+                        reject(err);
                         return;
                     }
                     try {
@@ -2663,17 +2663,17 @@ class VwWeConnect {
                         if (body.indexOf("<error>") !== -1) {
                             this.log.error("Error response try to refresh token " + url);
                             this.log.error(JSON.stringify(body));
-                            this.refreshToken(true).catch(() => {
+                            this.refreshToken(true).catch((err) => {
                                 this.log.error("Refresh Token was not successful");
                             });
-                            reject();
+                            reject(err);
                             return;
                         }
                         this.log.info(body);
                     } catch (err) {
                         this.log.error(err);
                         this.log.error(err.stack);
-                        reject();
+                        reject(err);
                     }
                 }
             );
