@@ -71,7 +71,7 @@ class VwWeConnect {
         user: "testuser",
         password: "testpass",
         type: "id",
-        interval: 10,
+        interval: 20,
         forceinterval: 0,
         numberOfTrips: 1,
         logLevel: "ERROR",
@@ -191,8 +191,8 @@ class VwWeConnect {
         this.config.user = pUser;
         this.config.password = pPass;
         //this.config.type = "id";
-        this.config.interval = 0.5;
-        this.config.checkSafeStatusTimeout = 5; // minutes to wait for event if car is not locked or windows not closed
+        this.config.interval = 7;
+        this.config.checkSafeStatusTimeout = 15; // minutes to wait for event if car is not locked or windows not closed
         //this.config.forceinterval = 360; // shouldn't be smaller than 360mins, default 0 (off)
         //this.config.numberOfTrips = 1;
     }
