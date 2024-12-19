@@ -6,5 +6,9 @@ https://github.com/adhyh/npm-vwconnectidapi
 
 This API is taken entirely from that of ADHYH. I simply modified the query interval to avoid crashes on my golf. it's only for Homebridge plugin 
 
+Use
 
+sudo npm install -g https://github.com/Libar19/vwgolfapi.git
+
+to install.
 
