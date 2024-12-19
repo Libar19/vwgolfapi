@@ -10,5 +10,5 @@ Use
 
 sudo npm install -g https://github.com/Libar19/vwgolfapi.git
 
-to install.
+to install and edit your Homebridge-weconnectid plugin
 
