@@ -10,12 +10,10 @@
     "Volkswagen",
     "weconnect",
     "API",
-    "ID.3",
-    "ID.4",
-    "weconnectid",
+    "Golf 7 GTE",
     "vw connect"
   ],
-  "author": "adhyh",
+  "author": "adhyh for 99,9 and 0,1% for Libar19",
   "license": "MIT",
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
