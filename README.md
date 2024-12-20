@@ -13,7 +13,7 @@ To do this, install
 
 Then find the path where the api is installed and go to the package.json of the plugin "Homebridge-vwconnectid" you should have ""dependencies": {
 "npm-vwconnectidapi": "1.1.4"
-edited on 1.1.4 by the path to your api download previously.
+edited on 1.1.4 by the path to your api download previously under the " ".
 
 Save, Reboot Homebridge and Enjoy :)
 
